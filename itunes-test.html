@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f8fa">
+<title>Music Archive · iTunes API Test</title>
+<link rel="preconnect" href="https://itunes.apple.com" crossorigin>
+<link rel="preconnect" href="https://is1-ssl.mzstatic.com" crossorigin>
+<style>
+:root{font:14px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;background:#f6f8fa;color:#23354a}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}a{color:#24608a}
+button:disabled{opacity:.6;cursor:wait}button,input,select{border:1px solid #d4dfe9;border-radius:9px;padding:10px;background:#fff;color:inherit}
+button:hover{background:#f0f5fa}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #84b7ef;outline-offset:2px}
+.wrap{max-width:1020px;margin:auto;padding:0 18px}header{background:#fff;border-bottom:1px solid #dce4ec}
+header .wrap{height:65px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand{font-size:17px;font-weight:800;text-decoration:none;color:#234362}.chip{font-size:11px;color:#5b7187;border:1px solid #d9e2e9;border-radius:99px;padding:4px 9px}
+main{padding-top:32px}h1{font-size:30px;letter-spacing:-.7px;margin:0 0 5px}h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:0}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.7px;color:#58758f}.muted{font-size:12px;color:#6d7f90;margin:4px 0 0}
+.panel,.column{background:#fff;border:1px solid #dfe6ee;border-radius:13px;padding:17px;margin:15px 0}
+form{display:grid;grid-template-columns:minmax(0,1fr) 170px auto;gap:9px;align-items:end;margin-top:12px}form label{display:block;font-size:12px;font-weight:700;color:#577084;margin:0 0 5px}input,select{width:100%;height:45px}
+.primary{background:#244665;color:white;border-color:#244665}.primary:hover{background:#315b81}.small{font-size:12px;padding:7px 10px}
+.samples,.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.samples button{font-size:12px;padding:5px 8px}
+.note{background:#edf4fa;border:1px solid #d8e5f0;border-radius:9px;padding:11px 13px;color:#48617b;font-size:12px;margin-top:13px}
+.tools{justify-content:space-between}.status{font-size:12px;color:#5a6f83;min-height:22px;margin-top:12px}.bad{color:#a33645}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}.stat{flex:1;min-width:130px;background:#fff;border:1px solid #dfe6ee;border-radius:11px;padding:12px}.stat b{display:block;font-size:19px}.stat span{font-size:11px;color:#708094}
+.columns,.countries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.column{margin:0;padding:12px;min-width:0}
+.heading{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:10px}.count{font-size:11px;color:#8493a1}
+.items{display:grid;gap:8px}.item{width:100%;text-align:left;border:1px solid #e4ebf1;border-radius:10px;display:flex;align-items:center;gap:9px;padding:7px;font-weight:400;min-height:66px}
+.art{width:48px;height:48px;flex:0 0 48px;background:#ecf1f5;border-radius:8px;color:#8193a5;display:grid;place-items:center;overflow:hidden}
+.art img{width:100%;height:100%;object-fit:cover}.info{flex:1;min-width:0}.name,.sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.name{font-weight:720}.sub{color:#718496;font-size:11px}.timing{display:block;color:#376e87;font-size:10px}
+.empty{color:#8492a1;font-size:12px;padding:20px 7px;border:1px dashed #d9e1e9;border-radius:10px;text-align:center}
+.more{width:100%;margin-top:8px}.detail-head{display:flex;gap:14px;align-items:flex-start}.detail-cover{width:106px;height:106px;flex:0 0 106px}.detail-title{font-size:21px;line-height:1.25;font-weight:800}.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.disc{padding-top:13px}.track{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f3}.trackno{width:26px;text-align:right;color:#8295a5;font-size:11px}.trackbody{flex:1;min-width:0}
+.country{border:1px solid #dce5ed;border-radius:10px;padding:11px;min-width:0}.country p{font-size:12px;white-space:pre-line;color:#637789}
+.error{border:1px solid #eec1c7;background:#fff5f5;border-radius:9px;padding:9px;color:#982b3e;font-size:12px}
+footer{font-size:11px;color:#8291a0;border-top:1px solid #dfe6ed;padding:22px 0;margin-top:30px}
+[hidden]{display:none!important}
+@media(max-width:840px){.columns,.countries{grid-template-columns:1fr 1fr}}
+@media(max-width:610px){main{padding-top:22px}.columns,.countries{grid-template-columns:1fr}form{grid-template-columns:1fr 1fr}form .q{grid-column:1/-1}form button{grid-column:1/-1}h1{font-size:25px}.panel{padding:13px}}
+</style>
+</head><body>
+<header><div class="wrap"><a class="brand" href="./">♫ My Music Archive</a><span class="chip">iTunes API 독립 테스트</span></div></header>
+<main class="wrap">
+<div class="eyebrow">APPLE MUSIC DATA SOURCE TEST</div>
+<h1>iTunes 검색·커버 성능 테스트</h1>
+<p class="muted">기존 사이트와 독립된 페이지입니다. 음악 검색, 앨범 수록곡, 국가별 카탈로그, 이미지 속도를 확인하며 <strong>GitHub 평가·토큰·data.json을 읽거나 변경하지 않습니다.</strong></p>
+<section class="panel">
+<h2>아티스트 · 앨범 · 곡 통합 검색</h2>
+<form id="search-form">
+<div class="q"><label for="term">검색어</label><input id="term" type="search" value="Vaundy replica" placeholder="Vaundy replica, Taylor Swift Anti-Hero …" required maxlength="160"></div>
+<div><label for="country">스토어 지역</label><select id="country"><option value="JP">일본 JP</option><option value="KR">한국 KR</option><option value="US">미국 US</option><option value="GB">영국 GB</option><option value="CA">캐나다 CA</option><option value="AU">호주 AU</option><option value="FR">프랑스 FR</option><option value="DE">독일 DE</option><option value="BR">브라질 BR</option><option value="IN">인도 IN</option></select></div>
+<button class="primary" type="submit" id="search-btn">검색</button>
+</form>
+<div class="samples" id="samples"><span class="muted">예시</span></div>
+<div class="note"><strong>JP는 일본 음악만 검색하는 설정이 아닙니다.</strong> 일본 스토어에 제공되는 영어·한국어·일본어 등 모든 음악을 검색합니다. KR·US도 마찬가지이며, 발매작의 지역별 제공 여부는 다를 수 있습니다. 매번 여러 국가에 요청하지 않고 필요할 때만 비교합니다.</div>
+<div class="tools"><p class="muted">API 호출은 클릭 시에만 실행 · API 호출량 자동 제한</p><button type="button" id="compare-btn">JP · KR · US 결과 비교</button></div>
+<div class="status" id="status" role="status" aria-live="polite">검색을 눌러 테스트를 시작하세요.</div>
+</section>
+<div class="stats" id="stats" hidden>
+<div class="stat"><b id="api-time">—</b><span>3종 검색 총 응답 시간</span></div>
+<div class="stat"><b id="cover-median">—</b><span>이미지 로딩 중앙값</span></div>
+<div class="stat"><b id="cover-count">—</b><span>로드된 커버 / 실패</span></div>
+<div class="stat"><b id="transport">—</b><span>통신 방식</span></div>
+</div>
+<div class="columns" id="results" hidden></div>
+<section class="panel" id="detail" hidden></section>
+<section class="panel" id="comparison" hidden><h2>동일 검색어의 카탈로그 차이</h2><p class="muted">API에서 반환된 항목 개수를 비교합니다. 전 세계 음악 수량이나 스트리밍 인기도를 의미하지 않습니다.</p><div class="countries" id="country-results"></div></section>
+<section class="panel"><h2>테스트 안내</h2>
+<p class="muted">이미지 시간은 실제 기기에서 이미지가 표시되기까지 걸린 시간이며 브라우저 캐시와 스크롤 위치에 따라 다릅니다. Apple은 약 분당 20회 이내의 API 호출을 권고합니다. 일반 fetch가 CORS로 실패하면 <strong>사이트의 인증정보에 접근할 수 없는 샌드박스 iframe</strong> 안에서 공식 JSONP 방식을 시도합니다. 두 방식 모두 실패하면 오류를 그대로 표시합니다. Apple 앨범아트의 정식 서비스 이용 조건은 별도로 검토해야 합니다.</p>
+<p class="muted"><a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener noreferrer">Apple iTunes Search API 공식 문서 ↗</a></p></section>
+</main><footer><div class="wrap">Music Archive · iTunes Search API 실험 페이지 · 사용자 평가 저장 기능 없음</div></footer>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const kinds=[{e:"musicArtist",name:"아티스트",size:8},{e:"album",name:"발매작",size:12},{e:"song",name:"곡",size:20}];
+const names={JP:"일본",KR:"한국",US:"미국",GB:"영국",CA:"캐나다",AU:"호주",FR:"프랑스",DE:"독일",BR:"브라질",IN:"인도"};
+let searchGeneration=0,detailGeneration=0,compareGeneration=0,successTimes=[],coverFails=0,callTimes=[];
+const framePending=new Map();let sandboxFrame=null,sandboxReady=null,serial=0;
+function node(tag,cls,txt){const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x}
+function say(x,bad){$("status").textContent=x;$("status").classList.toggle("bad",!!bad)}
+function ms(n){return n<1000?Math.round(n)+" ms":(n/1000).toFixed(2)+" s"}
+function linkURL(s){try{const u=new URL(s);return u.protocol==="https:"&&["itunes.apple.com","music.apple.com"].includes(u.hostname)?u.href:""}catch{return""}}
+function imageURL(s){try{const u=new URL(s);return u.protocol==="https:"&&u.hostname.endsWith(".mzstatic.com")?u.href:""}catch{return""}}
+function median(a){if(!a.length)return"측정 대기";const b=a.slice().sort((x,y)=>x-y),m=b.length>>1;return ms(b.length%2?b[m]:(b[m-1]+b[m])/2)}
+function updateImages(){$("cover-median").textContent=median(successTimes);$("cover-count").textContent=successTimes.length+" / "+coverFails}
+function cover(s){const b=node("span","art","♫"),timing=node("span","timing");const valid=imageURL(s);if(!valid)return{box:b,timing};
+ const img=document.createElement("img"),start=performance.now(),gen=searchGeneration;img.alt="";img.loading="lazy";img.decoding="async";
+ img.onload=()=>{if(gen===searchGeneration){const elapsed=performance.now()-start;successTimes.push(elapsed);timing.textContent="커버 "+ms(elapsed);updateImages()}};
+ img.onerror=()=>{img.remove();if(gen===searchGeneration){coverFails++;timing.textContent="커버 실패";updateImages()}};
+ b.textContent="";b.append(img);img.src=valid;return{box:b,timing};
+}
+function badgeLink(url){const u=linkURL(url);if(!u)return null;const a=node("a","small","Apple에서 보기 ↗");a.href=u;a.target="_blank";a.rel="noopener noreferrer";return a}
+function clean(data){if(!data||!Array.isArray(data.results))throw Error("Apple API 응답 형식 오류");return data}
+function makeSandbox(){if(sandboxReady)return sandboxReady;
+ sandboxReady=new Promise((resolve,reject)=>{
+ const iframe=document.createElement("iframe");sandboxFrame=iframe;iframe.hidden=true;iframe.sandbox="allow-scripts";iframe.title="격리된 Apple JSONP 전송";
+ const code='window.addEventListener("message",function(ev){'+
+ 'if(ev.source!==parent||!ev.data||ev.data.type!=="ask")return;'+
+ 'var id=ev.data.id,u;try{u=new URL(ev.data.url);if(u.origin!=="https://itunes.apple.com"||!["/search","/lookup"].includes(u.pathname))throw Error("잘못된 요청");}catch(e){parent.postMessage({type:"answer",id:id,error:String(e)},"*");return;}'+
+ 'var cb="itunes_cb_"+id,script=document.createElement("script"),done=false;'+
+ 'function finish(err,data){if(done)return;done=true;clearTimeout(timer);script.remove();delete window[cb];parent.postMessage({type:"answer",id:id,error:err,data:data},"*")}'+
+ 'window[cb]=function(data){finish("",data)};script.onerror=function(){finish("JSONP 로드 실패")};'+
+ 'var timer=setTimeout(function(){finish("JSONP 15초 초과")},15000);u.searchParams.set("callback",cb);script.src=u.href;document.head.append(script);'+
+ '});parent.postMessage({type:"ready"},"*");';
+ iframe.srcdoc='<!doctype html><meta charset="utf-8"><script>'+code+'<'+'/script>';
+ const timeout=setTimeout(()=>reject(Error("JSONP 샌드박스 준비 실패")),5000);
+ function ready(ev){if(ev.source===iframe.contentWindow&&ev.data&&ev.data.type==="ready"){clearTimeout(timeout);window.removeEventListener("message",ready);resolve(iframe)}}
+ window.addEventListener("message",ready);document.body.append(iframe);
+ });return sandboxReady;
+}
+window.addEventListener("message",ev=>{if(!sandboxFrame||ev.source!==sandboxFrame.contentWindow||!ev.data||ev.data.type!=="answer")return;const job=framePending.get(ev.data.id);if(!job)return;framePending.delete(ev.data.id);clearTimeout(job.timeout);if(ev.data.error)job.reject(Error(ev.data.error));else job.resolve(ev.data.data)});
+async function jsonp(url){const f=await makeSandbox();return new Promise((resolve,reject)=>{const id=++serial;const timeout=setTimeout(()=>{framePending.delete(id);reject(Error("JSONP 시간 초과"))},18000);framePending.set(id,{resolve,reject,timeout});f.contentWindow.postMessage({type:"ask",id,url},"*")})}
+async function limitCalls(){const now=Date.now();callTimes=callTimes.filter(t=>now-t<60000);if(callTimes.length>=17){const delay=60000-(now-callTimes[0]);say("Apple 요청 제한 방지를 위해 "+Math.ceil(delay/1000)+"초 대기 중…");await new Promise(r=>setTimeout(r,delay+50));return limitCalls()}callTimes.push(now)}
+async function api(path,params){await limitCalls();const url=new URL("https://itunes.apple.com"+path);Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));const begin=performance.now();let data,mode="fetch";
+ try{const c=new AbortController(),t=setTimeout(()=>c.abort(),14000);try{const r=await fetch(url.href,{signal:c.signal,cache:"no-store"});if(!r.ok)throw Error("Apple HTTP "+r.status);data=await r.json()}finally{clearTimeout(t)}}
+ catch(err){if(!(err instanceof TypeError)&&err.name!=="AbortError")throw err;mode="격리 JSONP";try{data=await jsonp(url.href)}catch(e){throw Error("fetch 실패: "+err.message+" / JSONP 실패: "+e.message)}}
+ return{data:clean(data),mode,elapsed:performance.now()-begin};
+}
+function params(q,c,e,limit){return{term:q,country:c,media:"music",entity:e,limit:String(limit||40),lang:c==="JP"?"ja_jp":"en_us"}}
+function dedup(items,e){const set=new Set();return items.filter(x=>{const id=e==="musicArtist"?x.artistId:e==="album"?x.collectionId:x.trackId;if(id==null)return false;if(set.has(id))return false;set.add(id);return true})}
+function title(x,e){return e==="musicArtist"?x.artistName:e==="album"?x.collectionName:x.trackName}
+function detailInfo(x,e){return e==="musicArtist"?(x.primaryGenreName||"아티스트"):e==="album"?[x.artistName,(x.releaseDate||"").slice(0,4),(x.trackCount||"?")+"곡"].filter(Boolean).join(" · "):[x.artistName,x.collectionName].filter(Boolean).join(" · ")}
+function row(x,e,c){const b=node("button","item");b.type="button";let art=e==="musicArtist"?{box:node("span","art","♬")}:cover(x.artworkUrl100);b.append(art.box);
+ const info=node("span","info");info.append(node("span","name",title(x,e)||"제목 미상"),node("span","sub",detailInfo(x,e)));if(art.timing)info.append(art.timing);b.append(info);
+ b.onclick=()=>e==="album"?showAlbum(x,c):e==="musicArtist"?showArtist(x,c):showTrack(x,c);return b;
+}
+function section(cat,items,c){const box=node("section","column"),head=node("div","heading"),list=node("div","items"),more=node("button","more small","더보기");
+ head.append(node("h3","",cat.name),node("span","count",items.length+"개"));box.append(head,list);
+ if(!items.length){list.append(node("div","empty","검색 결과가 없습니다."));return box}
+ let n=0;function append(){const to=Math.min(items.length,n+cat.size);for(;n<to;n++)list.append(row(items[n],cat.e,c));more.hidden=n>=items.length;more.textContent="더보기 · "+n+"/"+items.length}
+ append();more.onclick=append;box.append(more);return box;
+}
+async function search(){const q=$("term").value.trim(),c=$("country").value;if(!q)return;const g=++searchGeneration;detailGeneration++;compareGeneration++;successTimes=[];coverFails=0;updateImages();$("detail").hidden=true;$("comparison").hidden=true;$("results").hidden=true;$("stats").hidden=false;$("search-btn").disabled=true;$("api-time").textContent="조회 중";$("transport").textContent="—";say(names[c]+" 카탈로그에서 곡·앨범·아티스트를 검색 중…");const begin=performance.now();
+ const results=await Promise.all(kinds.map(async k=>{try{return{e:k.e,res:await api("/search",params(q,c,k.e,40))}}catch(err){return{e:k.e,error:err.message}}}));
+ if(g!==searchGeneration)return;const root=$("results");root.replaceChildren();let errors=0;const modes=new Set();
+ for(const cat of kinds){const r=results.find(v=>v.e===cat.e);if(r.error){errors++;const col=node("section","column");col.append(node("h3","",cat.name),node("p","error",r.error));root.append(col)}else{modes.add(r.res.mode);root.append(section(cat,dedup(r.res.data.results,cat.e),c))}}
+ root.hidden=false;$("api-time").textContent=ms(performance.now()-begin);$("transport").textContent=[...modes].join(" + ")||"실패";say(names[c]+" 카탈로그 검색 완료"+(errors?" · "+errors+"개 검색 오류":"")+" · 이미지 로딩 시간은 각 항목 아래 표시됩니다.",!!errors);$("search-btn").disabled=false;
+}
+function detail(titleText,sub,imgURL,storeLink){const panel=$("detail");panel.hidden=false;panel.replaceChildren();const head=node("div","detail-head");const art=cover(imgURL);art.box.classList.add("detail-cover");head.append(art.box);const info=node("div");info.style.minWidth="0";info.append(node("div","detail-title",titleText),node("div","muted",sub));const acts=node("div","actions");const url=badgeLink(storeLink);if(url)acts.append(url);const close=node("button","small","닫기");close.onclick=()=>panel.hidden=true;acts.append(close);info.append(acts);head.append(info);panel.append(head);panel.scrollIntoView({behavior:"smooth",block:"start"});return panel}
+function showTrack(x,c){const d=detail(x.trackName||"곡",detailInfo(x,"song")+" · "+c,x.artworkUrl100,x.trackViewUrl);d.append(node("p","muted","trackId: "+x.trackId+" · collectionId: "+x.collectionId));if(x.collectionId){const b=node("button","small","앨범 수록곡 보기");b.style.marginTop="10px";b.onclick=()=>showAlbum(x,c);d.append(b)}}
+async function showAlbum(x,c){const gen=++detailGeneration;const id=x.collectionId;if(!id)return;const d=detail(x.collectionName||"앨범",detailInfo(x,"album")+" · "+c,x.artworkUrl100,x.collectionViewUrl);const body=node("div","", "수록곡 조회 중…");body.style.marginTop="18px";d.append(body);
+ try{const r=await api("/lookup",{id,country:c,entity:"song",limit:"200"});if(gen!==detailGeneration)return;const songs=r.data.results.filter(t=>t.wrapperType==="track"&&String(t.collectionId)===String(id)).sort((a,b)=>(a.discNumber||1)-(b.discNumber||1)||(a.trackNumber||0)-(b.trackNumber||0));body.replaceChildren(node("p","muted",songs.length+"곡 · 응답 "+ms(r.elapsed)+" · "+r.mode));if(!songs.length){body.append(node("div","empty","이 카탈로그에서 수록곡을 찾지 못했습니다."));return}const groups=new Map();songs.forEach(x=>{const disc=x.discNumber||1;if(!groups.has(disc))groups.set(disc,[]);groups.get(disc).push(x)});for(const [disc,tracks] of groups){const sec=node("section","disc");sec.append(node("h3","", "Disc "+disc+" · "+tracks.length+"곡"));tracks.forEach(x=>{const tr=node("div","track");tr.append(node("span","trackno",String(x.trackNumber||"")));const text=node("div","trackbody");text.append(node("span","name",x.trackName||"제목 미상"),node("span","sub",x.artistName||""));tr.append(text);const a=badgeLink(x.trackViewUrl);if(a)tr.append(a);sec.append(tr)});body.append(sec)}}
+ catch(e){if(gen===detailGeneration)body.replaceChildren(node("p","error",e.message))}
+}
+async function showArtist(x,c){const gen=++detailGeneration;const d=detail(x.artistName||"아티스트",detailInfo(x,"musicArtist")+" · "+c,"",x.artistLinkUrl||x.artistViewUrl);const body=node("div","","발매작 조회 중…");body.style.marginTop="18px";d.append(body);
+ try{const r=await api("/lookup",{id:x.artistId,country:c,entity:"album",limit:"100"});if(gen!==detailGeneration)return;const albums=dedup(r.data.results.filter(x=>x.wrapperType==="collection"),"album");body.replaceChildren(node("h3","",albums.length+"개 발매작 · "+ms(r.elapsed)+" · "+r.mode));const list=node("div","items");list.style.marginTop="10px";body.append(list);let idx=0;const more=node("button","more small","더보기");function draw(){let end=Math.min(albums.length,idx+16);for(;idx<end;idx++)list.append(row(albums[idx],"album",c));more.hidden=idx>=albums.length}draw();more.onclick=draw;body.append(more);if(!albums.length)body.append(node("div","empty","발매작을 찾지 못했습니다."))}
+ catch(e){if(gen===detailGeneration)body.replaceChildren(node("p","error",e.message))}
+}
+async function compare(){const q=$("term").value.trim();if(!q)return;const gen=++compareGeneration;const mount=$("country-results");$("comparison").hidden=false;mount.replaceChildren();$("compare-btn").disabled=true;$("comparison").scrollIntoView({behavior:"smooth",block:"start"});
+ for(const c of ["JP","KR","US"]){if(gen!==compareGeneration)break;const card=node("div","country");card.append(node("h3","",names[c]+" ("+c+")"));const note=node("p","","조회 중…");card.append(note);mount.append(card);
+ const arr=await Promise.all(kinds.map(async k=>{try{return{e:k.e,res:await api("/search",params(q,c,k.e,20))}}catch(err){return{e:k.e,error:err.message}}}));if(gen!==compareGeneration)break;
+ card.replaceChildren(node("h3","",names[c]+" ("+c+")"));card.append(node("p","",arr.map(x=>{const k=kinds.find(k=>k.e===x.e);return k.name+": "+(x.error?"오류":x.res.data.results.length+"개")}).join("\n")));
+ const albums=arr.find(x=>x.e==="album")?.res?.data.results||[],songs=arr.find(x=>x.e==="song")?.res?.data.results||[];
+ card.append(node("p","",albums.slice(0,2).map(x=>"앨범 · "+x.collectionName).concat(songs.slice(0,3).map(x=>"곡 · "+x.trackName)).join("\n")||"결과 없음"));
+ const b=node("button","small","이 국가로 검색");b.onclick=()=>{$("country").value=c;search();window.scrollTo({top:0,behavior:"smooth"})};card.append(b);
+ const errors=arr.filter(x=>x.error);if(errors.length)card.append(node("p","error",errors[0].error));
+ }$("compare-btn").disabled=false;
+}
+["Vaundy replica","Vaundy 踊り子","Official髭男dism Pretender","Taylor Swift Anti-Hero","BTS Dynamite","Bad Bunny"].forEach(q=>{const b=node("button","small",q);b.type="button";b.onclick=()=>{$("term").value=q;search()};$("samples").append(b)});
+$("search-form").onsubmit=e=>{e.preventDefault();search()};$("compare-btn").onclick=compare;
+</script>
+</body></html>
