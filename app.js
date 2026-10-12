@@ -13,6 +13,17 @@ let libraryType = "all";
 let viewStack = [];
 const albumCache = new Map();
 const failedCovers = new Map();
+const smallCovers = new Map();
+const coverLookups = new Map();
+const COVER_CACHE = "musicarchive-public-covers-v1";
+const isSmallCover = url => /^https:\/\/archive\.org\/services\/img\/mbid-[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(url || "");
+try {
+  const cached = JSON.parse(localStorage.getItem(COVER_CACHE) || "[]");
+  if (Array.isArray(cached)) for (const [key, entry] of cached.slice(-100)) {
+    if (entry && isSmallCover(entry.url) && Date.now() - entry.time < 7 * 86400000) smallCovers.set(key, entry);
+  }
+} catch { /* Public cover caching is optional, including in private browsing. */ }
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./cover-cache.js").catch(() => {});
 const popularCache = new Map();
 let listenQueue = Promise.resolve();
 let lastListenLookup = 0;
@@ -105,8 +116,56 @@ async function load() {
   renderLibrary();
 }
 
+function coverKey(song) {
+  return isMBID(song.releaseGroupId) ? `release-group/${song.releaseGroupId}` : isMBID(song.releaseId) ? `release/${song.releaseId}` : "";
+}
+
+function rememberSmallCover(key, url) {
+  if (!key || !isSmallCover(url)) return;
+  smallCovers.set(key, { url, time: Date.now() });
+  if (smallCovers.size > 100) smallCovers.delete(smallCovers.keys().next().value);
+  try { localStorage.setItem(COVER_CACHE, JSON.stringify([...smallCovers])); } catch { /* Memory cache remains available. */ }
+  navigator.serviceWorker?.controller?.postMessage({ type: "cover-loaded", url });
+}
+
+function findSmallCover(song) {
+  const key = coverKey(song);
+  if (!key) return Promise.resolve("");
+  if (smallCovers.has(key)) return Promise.resolve(smallCovers.get(key).url);
+  const previous = coverLookups.get(key);
+  if (previous && previous.expires > Date.now()) return previous.promise;
+  const promise = (async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 7000);
+    try {
+      const response = await fetch(`https://coverartarchive.org/${key}`, { headers: { Accept: "application/json" }, signal: controller.signal });
+      if (!response.ok) return "";
+      const json = await response.json();
+      const front = (json.images || []).find(image => image.front);
+      if (!front) return "";
+      const source = new URL(front.image);
+      const match = source.hostname === "coverartarchive.org" ? source.pathname.match(/^\/release\/([a-f0-9-]{36})\//i)
+        : source.hostname === "archive.org" ? source.pathname.match(/^\/download\/mbid-([a-f0-9-]{36})\//i) : null;
+      return match && isMBID(match[1]) ? `https://archive.org/services/img/mbid-${match[1]}` : "";
+    } catch { return ""; }
+    finally { clearTimeout(timer); }
+  })();
+  coverLookups.set(key, { promise, expires: Date.now() + 60000 });
+  return promise;
+}
+
+// This only upgrades an already assigned image URL; it never blocks native loading.
+const smallCoverObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.target.isConnected) { smallCoverObserver.unobserve(entry.target); continue; }
+    if (entry.isIntersecting) { smallCoverObserver.unobserve(entry.target); entry.target.upgradeCover?.(); }
+  }
+}, { rootMargin: "100px" }) : null;
+
 function coverCandidates(song) {
   const urls = [];
+  const small = smallCovers.get(coverKey(song));
+  if (small) urls.push(small.url);
   if (isMBID(song.releaseId)) urls.push(`https://coverartarchive.org/release/${song.releaseId}/front-250`);
   if (isMBID(song.releaseGroupId)) {
     urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-250`);
@@ -121,7 +180,7 @@ function coverCandidates(song) {
   return [...new Set(urls)].slice(0, 5);
 }
 
-function loadCover(image, urls) {
+function loadCover(image, urls, key) {
   let index = 0;
   let current = "";
   const next = () => {
@@ -131,7 +190,15 @@ function loadCover(image, urls) {
     failedCovers.delete(current);
     image.src = current;
   };
-  image.onerror = () => { failedCovers.set(current, Date.now() + 60000); next(); };
+  image.onload = () => { if (isSmallCover(current)) rememberSmallCover(key, current); };
+  image.onerror = () => {
+    failedCovers.set(current, Date.now() + 60000);
+    if (smallCovers.get(key)?.url === current) {
+      smallCovers.delete(key);
+      try { localStorage.setItem(COVER_CACHE, JSON.stringify([...smallCovers])); } catch { /* Optional cache. */ }
+    }
+    next();
+  };
   // The displayed image makes the request; successful URLs use the browser cache.
   next();
 }
@@ -143,10 +210,24 @@ function artwork(song, eager = false) {
   if (!urls.length) return box;
   const image = document.createElement("img");
   image.alt = ""; image.loading = eager ? "eager" : "lazy"; image.decoding = "async";
-  image.width = 250; image.height = 250;
+  image.width = 180; image.height = 180;
   if (eager) image.fetchPriority = "high";
   box.append(image);
-  loadCover(image, urls);
+  const key = coverKey(song);
+  loadCover(image, urls, key);
+  let upgrading = false;
+  box.upgradeCover = async () => {
+    if (upgrading) return;
+    upgrading = true;
+    const url = await findSmallCover(song);
+    if (!url || !box.isConnected || image.src === url || (image.complete && image.naturalWidth > 0)) return;
+    if (!image.isConnected) box.append(image);
+    loadCover(image, [...new Set([url, ...urls])], key);
+  };
+  if (!smallCovers.has(key)) {
+    if (eager || !smallCoverObserver) setTimeout(() => box.upgradeCover(), 0);
+    else smallCoverObserver.observe(box);
+  }
   return box;
 }
 
@@ -1076,6 +1157,7 @@ $("disconnect").addEventListener("click", () => {
 });
 $("export").addEventListener("click", backup);
 load();
+
 
 
 
