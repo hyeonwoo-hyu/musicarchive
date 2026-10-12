@@ -176,7 +176,7 @@ function songRow(song, fromSearch = false) {
   status.dataset.albumDetail = String(song.type === "album" && fromSearch);
   status.textContent = existing ? `${existing.rating.toFixed(1)} ★ · 수정` : song.type === "album" ? "상세 · 평가" : "평가하기";
   button.append(status);
-  button.addEventListener("click", () => song.type === "album" && fromSearch ? openAlbum(song, true) : openEditor(song));
+  button.addEventListener("click", () => song.type === "album" ? openAlbum(song) : openEditor(song));
   row.append(button);
   const link = appleLink(song.storeUrl, true); if (link) row.append(link);
   return row;
@@ -344,9 +344,14 @@ function addBack(view) {
   const button = el("button", "text-button", "← 이전 화면"); button.type = "button";
   button.addEventListener("click", () => {
     searchRun?.controller.abort();
-    if (view.returnLibrary) { showTab("library"); searchRun = viewStack.pop() || null; return; }
-    searchRun = viewStack.pop();
+    searchRun = viewStack.pop() || null;
     if (searchRun) { searchRun.controller = new AbortController(); mountView(searchRun); }
+    else {
+      $("search-context").replaceChildren(); $("search-context").hidden = true;
+      $("results").replaceChildren(el("div", "empty", "곡명, 앨범명 또는 아티스트를 검색해 보세요."));
+      $("search-count").textContent = "";
+    }
+    if (view.returnLibrary) showTab("library");
   });
   view.context.append(button);
 }
@@ -426,7 +431,7 @@ async function openArtist(item, country) {
   await page.load(); view.pending = false; refreshSearchCount(view);
 }
 
-async function openAlbum(album, fromSearch = false) {
+async function openAlbum(album) {
   const returnLibrary = !$("library-panel").hidden;
   const view = makeView("album", album.originalTitle, album.country, Boolean(searchRun)); view.returnLibrary = returnLibrary;
   addBack(view);
