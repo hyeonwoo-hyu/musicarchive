@@ -34,11 +34,16 @@
 
     <section id="library-panel" aria-labelledby="library-tab">
       <div class="stats">
-        <div class="stat"><strong id="song-count">0</strong><span>기록한 곡</span></div>
-        <div class="stat"><strong id="average-score">—</strong><span>평균 평점</span></div>
+        <div class="stat"><strong id="song-count">0</strong><span id="record-count-label">기록한 곡 · 발매작</span></div>
+        <div class="stat"><strong id="average-score">—</strong><span id="average-label">곡 평균 · 발매작 평균</span></div>
         <div class="stat"><strong id="artist-count">0</strong><span>아티스트</span></div>
       </div>
 
+      <div class="type-filters" id="library-types" aria-label="기록 종류">
+        <button type="button" class="active" data-type="all" aria-pressed="true">전체</button>
+        <button type="button" data-type="track" aria-pressed="false">곡</button>
+        <button type="button" data-type="album" aria-pressed="false">앨범·EP·싱글</button>
+      </div>
       <div class="filterbar">
         <label class="field-with-icon"><span class="sr-only">내 음악 검색</span>
           <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
@@ -66,7 +71,7 @@
       <div class="section-header"><h2>검색 결과</h2><span class="muted hint" id="search-count"></span></div>
       <div id="search-context" hidden></div>
       <div class="search-results" id="results" aria-live="polite"><div class="empty">곡명, 앨범명 또는 아티스트를 검색해 보세요.</div></div>
-      <p class="caption">MusicBrainz는 동일한 녹음에 연결된 여러 발매작을 제공할 수 있습니다.</p>
+      <p class="caption">같은 제목이라도 녹음과 발매판이 다를 수 있습니다. MusicBrainz에 등록된 메타데이터를 표시합니다.</p>
     </section>
   </main>
 
@@ -101,4 +106,5 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
+
 
