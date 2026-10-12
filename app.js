@@ -400,6 +400,7 @@ function refreshSearchCount(view) {
 function createPage(view, entity, query, label, limit, row, rankQuery = "") {
   const page = { view, entity, query, label, limit, row, rankQuery, controller: view.controller, offset: 0, count: null, items: [], ids: new Set(), loading: false, done: false, failed: false };
   const section = el("section", "result-section");
+  page.section = section;
   const heading = el("div", "section-header");
   page.summary = el("span", "muted hint", "조회 대기 중…");
   heading.append(el("h3", "result-heading", label), page.summary);
@@ -511,14 +512,16 @@ async function openArtist(artist) {
 async function artistSearch(view, text, type) {
   const signature = `${text}|${type}`;
   if (view.signature === signature && view.pending && view.sections.length) return;
+  const previousTracks = view.searchText === text ? view.sections.find(page => page.entity === "recording" && !page.loading && (page.offset > 0 || page.done)) : null;
   view.controller.abort(); view.controller = new AbortController();
   const controller = view.controller;
-  view.signature = signature; view.pending = true;
+  view.signature = signature; view.searchText = text; view.pending = true;
   view.root.replaceChildren(); view.sections = [];
   const base = `arid:${view.artist.id}`;
   const albums = createPage(view, "release-group", [base, text && titleQuery("release-group", text), type && `primarytype:${quoteSearch(type)}`].filter(Boolean).join(" AND "), "발매작", 12, albumRow, text);
-  const tracks = createPage(view, "recording", [base, text && titleQuery("recording", text)].filter(Boolean).join(" AND "), "곡", 20, rec => songRow(normalizeRecording(rec), true), text);
-  try { await loadPage(albums); if (!controller.signal.aborted) await loadPage(tracks); }
+  const tracks = previousTracks || createPage(view, "recording", [base, text && titleQuery("recording", text)].filter(Boolean).join(" AND "), "곡", 20, rec => songRow(normalizeRecording(rec), true), text);
+  if (previousTracks) { tracks.controller = controller; view.sections.push(tracks); view.root.append(tracks.section); updatePageControls(tracks); }
+  try { await loadPage(albums); if (!controller.signal.aborted && !previousTracks) await loadPage(tracks); }
   finally { if (view.controller === controller) { view.pending = false; refreshSearchCount(view); } }
 }
 
