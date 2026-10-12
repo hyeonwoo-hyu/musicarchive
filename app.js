@@ -12,7 +12,11 @@ let lastSearchQuery = "";
 let libraryType = "all";
 let viewStack = [];
 const albumCache = new Map();
-const coverLoads = new Map();
+const failedCovers = new Set();
+const popularCache = new Map();
+let listenQueue = Promise.resolve();
+let lastListenLookup = 0;
+let listenBlockedUntil = 0;
 let pendingSave = null;
 let authAttempt = null;
 const recordType = song => song.type === undefined ? "track" : song.type;
@@ -112,16 +116,19 @@ function coverCandidates(song) {
   return [...new Set(urls)].slice(0, 5);
 }
 
-function loadCover(url, eager = false) {
-  if (!coverLoads.has(url)) coverLoads.set(url, new Promise(resolve => {
-    const probe = new Image();
-    probe.decoding = "async";
-    probe.fetchPriority = eager ? "high" : "auto";
-    probe.onload = () => resolve(true);
-    probe.onerror = () => resolve(false);
-    probe.src = url;
-  }));
-  return coverLoads.get(url);
+function loadCover(image, urls) {
+  let index = 0;
+  let current = "";
+  const next = () => {
+    while (index < urls.length && failedCovers.has(urls[index])) index++;
+    if (index === urls.length) { image.remove(); return; }
+    current = urls[index++];
+    image.src = current;
+  };
+  image.onload = () => { image.style.opacity = "1"; };
+  image.onerror = () => { failedCovers.add(current); next(); };
+  // The displayed image makes the request; successful URLs use the browser cache.
+  next();
 }
 
 const coverObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
@@ -146,22 +153,10 @@ function artwork(song, eager = false) {
   image.dataset.coverPending = "true";
   if (eager) image.fetchPriority = "high";
   let started = false;
-  let index = 0;
-  const nextCover = async () => {
-    while (index < urls.length) {
-      const url = urls[index++];
-      if (!await loadCover(url, eager)) continue;
-      image.onload = () => { image.style.opacity = "1"; };
-      image.onerror = () => { coverLoads.set(url, Promise.resolve(false)); nextCover(); };
-      image.src = url;
-      return;
-    }
-    image.remove();
-  };
   box.loadCover = () => {
     if (started) return;
     started = true; delete image.dataset.coverPending;
-    nextCover();
+    loadCover(image, urls);
   };
   box.append(image);
   if (eager || !coverObserver) box.loadCover();
@@ -634,7 +629,11 @@ async function openArtist(artist) {
   const popular = el("a", "secondary artist-popular-button", "인기곡 · ListenBrainz에서 보기 ↗");
   popular.href = `https://listenbrainz.org/artist/${artist.id}/`;
   popular.target = "_blank"; popular.rel = "noopener noreferrer";
-  view.context.append(popular, el("p", "caption", "ListenBrainz 청취 통계를 원본 페이지에서 확인합니다. 전체 스트리밍 서비스의 인기순은 아닙니다."));
+  const showPopular = el("button", "secondary", "인기곡 · ListenBrainz 기준");
+  showPopular.type = "button";
+  showPopular.addEventListener("click", () => loadPopular(view));
+  view.popularPanel = el("section", "result-section"); view.popularPanel.hidden = true;
+  view.context.append(showPopular, popular, el("p", "caption", "ListenBrainz 청취 통계 기준이며 전체 스트리밍 서비스의 인기순은 아닙니다."), view.popularPanel);
   const form = el("form", "artist-search");
   const label = el("label", "sr-only", "이 아티스트의 곡·발매작 검색");
   const input = el("input"); input.type = "search"; input.placeholder = "이 아티스트의 곡·발매작 검색"; input.id = "artist-within-query"; label.htmlFor = input.id;
@@ -646,6 +645,103 @@ async function openArtist(artist) {
   filter.addEventListener("change", () => artistSearch(view, input.value.trim(), filter.value));
   mountView(view);
   await artistSearch(view, "", "");
+}
+
+function requestPopular(artistId, signal) {
+  const task = listenQueue.then(async () => {
+    if (signal.aborted) throw new DOMException("취소됨", "AbortError");
+    const delay = Math.max(0, lastListenLookup + 1100 - Date.now(), listenBlockedUntil - Date.now());
+    if (delay > 60000) throw new Error("ListenBrainz 요청 제한 중입니다. 잠시 후 다시 시도하세요.");
+    if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+    if (signal.aborted) throw new DOMException("취소됨", "AbortError");
+    lastListenLookup = Date.now();
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    signal.addEventListener("abort", cancel, { once: true });
+    const timer = setTimeout(cancel, 20000);
+    try {
+      const response = await fetch(`https://api.listenbrainz.org/1/popularity/top-recordings-for-artist/${artistId}`, {
+        headers: { Accept: "application/json" }, signal: controller.signal, cache: "no-store"
+      });
+      if (response.headers.get("X-RateLimit-Remaining") === "0" || [429, 503].includes(response.status)) {
+        const wait = Number(response.headers.get("Retry-After")) || Number(response.headers.get("X-RateLimit-Reset-In")) || 5;
+        listenBlockedUntil = Date.now() + Math.max(1100, wait * 1000);
+      }
+      if (response.status === 401) throw new Error("ListenBrainz가 공개 조회에 인증을 요구합니다 (401). 원본 페이지를 이용하세요.");
+      if (response.status === 403) throw new Error("ListenBrainz API 접근이 거부됐습니다 (403). 원본 페이지를 이용하세요.");
+      if (response.status === 429) throw new Error("ListenBrainz 요청 제한입니다 (429). 잠시 후 다시 시도하세요.");
+      if (response.status >= 500) throw new Error(`ListenBrainz 서버 오류 또는 서비스 중단 (${response.status}). 기존 검색은 계속 이용할 수 있습니다.`);
+      if (!response.ok) throw new Error(`ListenBrainz 응답 ${response.status}`);
+      const json = await response.json();
+      if (!Array.isArray(json)) throw new Error("ListenBrainz 인기곡 응답 형식을 확인할 수 없습니다.");
+      return json;
+    } catch (error) {
+      if (error.name === "AbortError" && !signal.aborted) throw new Error("ListenBrainz 응답이 늦어 조회를 중단했습니다. 다시 시도하세요.");
+      if (error instanceof TypeError) throw new Error("ListenBrainz 응답을 읽지 못했습니다. 네트워크 또는 브라우저 CORS 제한을 확인하세요.");
+      throw error;
+    } finally { clearTimeout(timer); signal.removeEventListener("abort", cancel); }
+  });
+  listenQueue = task.catch(() => {});
+  return task;
+}
+
+function renderPopular(view, records) {
+  const list = el("div", "track-list"); list.id = "results-popular";
+  for (const item of records) {
+    const row = songRow(item.song, true);
+    const counts = [];
+    if (Number.isFinite(item.listens)) counts.push(`청취 ${item.listens.toLocaleString()}회`);
+    if (Number.isFinite(item.users)) counts.push(`청취자 ${item.users.toLocaleString()}명`);
+    row.querySelector(".track-info").append(el("span", "track-note", counts.join(" · ") || "청취 통계 수 미제공"));
+    list.append(row);
+  }
+  view.popularPanel.replaceChildren(el("h3", "result-heading", "인기곡 · ListenBrainz 기준"),
+    el("p", "caption", "상위 20개 Recording · 같은 제목의 다른 녹음은 유지하며, 확인된 MusicBrainz 버전 정보만 표시합니다."), list);
+  if (!records.length) view.popularPanel.append(el("p", "hint", "이 아티스트의 청취 통계가 아직 없습니다. 기존 곡·발매작 검색을 이용하세요."));
+  observeCovers(view.popularPanel);
+}
+
+async function loadPopular(view) {
+  if (view.popularLoading || searchRun !== view || view.controller.signal.aborted) return;
+  view.popularPanel.hidden = false;
+  if (popularCache.has(view.artist.id)) { renderPopular(view, popularCache.get(view.artist.id)); return; }
+  const controller = view.controller;
+  view.popularLoading = true;
+  view.popularPanel.replaceChildren(el("p", "hint muted", "ListenBrainz 요청 대기 · 인기곡 조회 중…"));
+  try {
+    const json = await requestPopular(view.artist.id, controller.signal);
+    if (controller.signal.aborted || searchRun !== view) return;
+    const ids = new Set();
+    const records = json.filter(item => {
+      if (!isMBID(item.recording_mbid) || ids.has(item.recording_mbid)) return false;
+      if (Array.isArray(item.artist_mbids) && item.artist_mbids.length && !item.artist_mbids.includes(view.artist.id)) return false;
+      ids.add(item.recording_mbid); return true;
+    }).slice(0, 20).map(item => ({
+      song: { id: item.recording_mbid, title: item.recording_name || "제목 없음", artist: item.artist_name || view.artist.name,
+        releaseId: isMBID(item.release_mbid) ? item.release_mbid : "", releaseTitle: item.release_name || "", year: "" },
+      listens: typeof item.total_listen_count === "number" ? item.total_listen_count : null,
+      users: typeof item.total_user_count === "number" ? item.total_user_count : null
+    }));
+    popularCache.set(view.artist.id, records);
+    renderPopular(view, records);
+    // A single bulk lookup enriches versions and covers; never request each song separately.
+    if (records.length) {
+      try {
+        const metadata = await searchBrainz("recording", records.map(item => `rid:${item.song.id}`).join(" OR "), 20, { controller });
+        if (controller.signal.aborted || searchRun !== view) return;
+        const byId = new Map((metadata.recordings || []).map(rec => [rec.id, rec]));
+        for (const item of records) if (byId.has(item.song.id)) item.song = normalizeRecording(byId.get(item.song.id));
+        renderPopular(view, records);
+      } catch {
+        if (!controller.signal.aborted && searchRun === view) view.popularPanel.append(el("p", "caption", "버전·발매 정보 확인 실패. 인기곡 평가와 기존 검색은 계속 이용할 수 있습니다."));
+      }
+    }
+  } catch (error) {
+    if (controller.signal.aborted || searchRun !== view) return;
+    const retry = el("button", "secondary", "인기곡 다시 조회"); retry.type = "button";
+    retry.addEventListener("click", () => loadPopular(view));
+    view.popularPanel.replaceChildren(el("p", "error", error.message), retry);
+  } finally { view.popularLoading = false; }
 }
 
 async function artistSearch(view, text, type) {
@@ -997,6 +1093,7 @@ $("disconnect").addEventListener("click", () => {
 });
 $("export").addEventListener("click", backup);
 load();
+
 
 
 
