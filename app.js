@@ -108,7 +108,12 @@ async function load() {
 function coverCandidates(song) {
   const urls = [];
   if (isMBID(song.releaseId)) urls.push(`https://coverartarchive.org/release/${song.releaseId}/front-250`);
-  if (isMBID(song.releaseGroupId)) urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-250`);
+  if (isMBID(song.releaseGroupId)) {
+    urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-250`);
+    urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-500`);
+  }
+  // A failed thumbnail size need not mean the cover itself is missing.
+  if (isMBID(song.releaseId)) urls.push(`https://coverartarchive.org/release/${song.releaseId}/front-500`);
   // Only use alternate releases verified to belong to the selected group.
   for (const id of song.coverReleaseIds || []) {
     if (isMBID(id)) urls.push(`https://coverartarchive.org/release/${id}/front-250`);
