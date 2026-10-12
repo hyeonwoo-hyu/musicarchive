@@ -58,14 +58,14 @@
 
     <section id="search-panel" aria-labelledby="search-tab" hidden>
       <h2>음악 찾기</h2>
-      <p class="muted hint">MusicBrainz에서 검색한 곡에 개인 평가를 남길 수 있습니다.</p>
+      <p class="muted hint">음악을 검색하고 곡에 개인 평가를 남겨 보세요. 아티스트를 선택하면 곡과 앨범을 볼 수 있습니다.</p>
       <form id="search-form" class="search-form">
-        <label>곡명<input id="song-query" type="search" placeholder="예: 踊り子" autocomplete="off"></label>
-        <label>아티스트 <span class="muted">(선택)</span><input id="artist-query" type="search" placeholder="예: Vaundy" autocomplete="off"></label>
+        <label><span class="sr-only">곡명, 앨범명, 아티스트 검색</span><input id="music-query" type="search" placeholder="곡명, 앨범명, 아티스트 검색" autocomplete="off" required maxlength="200"></label>
         <button type="submit" class="primary" id="search-submit">검색</button>
       </form>
       <div class="section-header"><h2>검색 결과</h2><span class="muted hint" id="search-count"></span></div>
-      <div class="track-list" id="results"><div class="empty">곡명을 검색하면 결과가 여기에 표시됩니다.</div></div>
+      <div id="search-context" hidden></div>
+      <div class="search-results" id="results" aria-live="polite"><div class="empty">곡명, 앨범명 또는 아티스트를 검색해 보세요.</div></div>
       <p class="caption">MusicBrainz는 동일한 녹음에 연결된 여러 발매작을 제공할 수 있습니다.</p>
     </section>
   </main>
@@ -75,7 +75,12 @@
   <dialog id="editor" class="modal">
     <form id="editor-form">
       <div class="modal-head"><div><p class="eyebrow">MY RECORD</p><h2 id="editor-title">곡 평가</h2><p class="muted hint" id="editor-subtitle"></p></div><button type="button" id="editor-close" class="close" aria-label="닫기">×</button></div>
-      <label>나의 평점 <span class="muted">/ 10</span><select id="rating" required><option value="">점수를 선택하세요</option></select></label>
+      <div class="rating-field">
+        <label for="rating">나의 평점</label>
+        <output id="rating-value" for="rating" class="rating-value">5.0 / 10</output>
+        <input id="rating" type="range" min="0.5" max="10" step="0.5" value="5" aria-describedby="rating-help">
+        <div class="rating-controls"><button id="rating-minus" type="button" class="secondary small" aria-label="평점 0.5점 낮추기">− 0.5</button><span id="rating-help" class="muted hint">0.5점 단위 · 0.5~10점</span><button id="rating-plus" type="button" class="secondary small" aria-label="평점 0.5점 높이기">+ 0.5</button></div>
+      </div>
       <label>감상평 <span class="muted">(선택)</span><textarea id="review" rows="5" maxlength="5000" placeholder="왜 좋았는지, 무엇이 인상적이었는지 기록해 보세요."></textarea></label>
       <p class="error" id="editor-error" role="alert" hidden></p>
       <button class="primary wide" id="save" type="submit">GitHub에 저장</button>
@@ -96,3 +101,4 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
+

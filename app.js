@@ -6,6 +6,9 @@ const FILE_API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/data.js
 const $ = id => document.getElementById(id);
 const state = { songs: [], token: "", editing: null, original: null, lastLookup: 0, saving: false };
 const isMBID = value => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(value || "");
+let musicQueue = Promise.resolve();
+let searchRun = null;
+let lastSearchQuery = "";
 
 function el(tag, className, content) {
   const node = document.createElement(tag);
@@ -128,6 +131,7 @@ function songRow(song, fromSearch = false) {
   const detail = fromSearch
     ? [song.version, song.releaseTitle, song.year].filter(Boolean).join(" · ")
     : String(song.review || "").replace(/\s+/g, " ").slice(0, 80);
+  if (fromSearch) button.title = [song.title, song.artist, detail].filter(Boolean).join(" · ");
   if (detail) info.append(el("span", "track-note", detail));
   button.append(info);
   const existing = state.songs.find(x => x.id === song.id);
@@ -196,42 +200,174 @@ function normalizeRecording(rec) {
   };
 }
 
-async function searchMusic(event) {
-  event.preventDefault();
-  const name = $("song-query").value.trim();
-  const artist = $("artist-query").value.trim();
-  if (!name && !artist) { alertUser("곡명이나 아티스트를 입력하세요.", true); return; }
-  const button = $("search-submit");
-  const results = $("results");
-  button.disabled = true;
-  button.textContent = "검색 중…";
-  results.replaceChildren(el("div", "empty", "음악 검색 중…"));
-  try {
+function quoteSearch(text) {
+  return `"${text.replace(/[\\"]/g, "\\$&")}"`;
+}
+
+// One queue for every MusicBrainz endpoint, including searches interrupted by a new query.
+function searchBrainz(entity, query, limit, run) {
+  const task = musicQueue.then(async () => {
+    if (run.controller.signal.aborted) throw new DOMException("취소됨", "AbortError");
     const delay = Math.max(0, 1100 - (Date.now() - state.lastLookup));
     if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+    if (run.controller.signal.aborted) throw new DOMException("취소됨", "AbortError");
     state.lastLookup = Date.now();
-    const quote = x => `"${x.replace(/["\\]/g, " ")}"`;
-    const q = [name && `recording:${quote(name)}`, artist && `artist:${quote(artist)}`].filter(Boolean).join(" AND ");
-    const params = new URLSearchParams({ query: q, fmt: "json", limit: "20" });
-    const response = await fetch(`https://musicbrainz.org/ws/2/recording/?${params}`, { headers: { Accept: "application/json" } });
-    if (!response.ok) {
-      if (response.status === 429 || response.status === 503) throw new Error("MusicBrainz가 혼잡하거나 요청이 제한되었습니다. 잠시 후 다시 검색해 주세요.");
-      throw new Error(`MusicBrainz 응답 ${response.status}`);
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    run.controller.signal.addEventListener("abort", cancel, { once: true });
+    const timeout = setTimeout(cancel, 15000);
+    try {
+      const params = new URLSearchParams({ query, fmt: "json", limit: String(limit) });
+      const response = await fetch(`https://musicbrainz.org/ws/2/${entity}/?${params}`, {
+        headers: { Accept: "application/json" }, signal: controller.signal
+      });
+      if (!response.ok) {
+        if (response.status === 429 || response.status === 503) throw new Error("MusicBrainz가 혼잡하거나 요청이 제한되었습니다. 잠시 후 다시 검색해 주세요.");
+        throw new Error(`MusicBrainz 응답 ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      if (error.name === "AbortError" && !run.controller.signal.aborted) throw new Error("응답이 늦어 검색을 중단했습니다. 다시 검색해 주세요.");
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+      run.controller.signal.removeEventListener("abort", cancel);
     }
-    const json = await response.json();
-    const songs = (json.recordings || []).filter(x => isMBID(x.id)).map(normalizeRecording);
-    results.replaceChildren();
-    $("search-count").textContent = songs.length ? `${songs.length}개 표시` : "";
-    if (!songs.length) results.append(el("div", "empty", "검색 결과가 없습니다. 아티스트를 비우거나 다른 표기(예: 아이유 → IU)로 검색해 보세요."));
-    else songs.forEach(song => results.append(songRow(song, true)));
-  } catch (error) {
-    results.replaceChildren(el("div", "empty", `검색 실패: ${error.message}`));
-    $("search-count").textContent = "";
-    alertUser("MusicBrainz 검색 연결을 확인해 주세요.", true);
-  } finally {
-    button.disabled = false;
-    button.textContent = "검색";
+  });
+  musicQueue = task.catch(() => {});
+  return task;
+}
+
+function rankedResults(items, query) {
+  const seen = new Set();
+  const key = text => String(text || "").normalize("NFKC").toLocaleLowerCase().trim();
+  const wanted = key(query);
+  const exact = item => [item.name, item.title, item["sort-name"], ...(item.aliases || []).map(x => x.name)].some(x => key(x) === wanted);
+  return items.filter(item => isMBID(item.id) && !seen.has(item.id) && seen.add(item.id))
+    .sort((a, b) => Number(exact(b)) - Number(exact(a)) || Number(b.score || 0) - Number(a.score || 0));
+}
+
+function artistRow(artist) {
+  const button = el("button", "track");
+  button.type = "button";
+  button.append(el("span", "art", "♬"));
+  const info = el("span", "track-info");
+  info.append(el("span", "track-title", artist.name));
+  info.append(el("span", "track-sub", [artist.type, artist.country || artist.area?.name, artist.disambiguation].filter(Boolean).join(" · ") || "아티스트"));
+  const aliases = (artist.aliases || []).map(x => x.name).filter(x => x !== artist.name).slice(0, 3);
+  const detail = [artist["life-span"]?.begin && `시작: ${artist["life-span"].begin}`, aliases.length && `별칭: ${aliases.join(", ")}`].filter(Boolean).join(" · ");
+  if (detail) info.append(el("span", "track-note", detail));
+  button.append(info, el("span", "add", "곡·앨범 보기 ↗"));
+  button.title = [artist.name, info.textContent].join(" · ");
+  button.addEventListener("click", () => startSearch(lastSearchQuery, artist));
+  return button;
+}
+
+function albumRow(group) {
+  const link = el("a", "track");
+  link.href = `https://musicbrainz.org/release-group/${group.id}`;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.append(artwork({ releaseGroupId: group.id }));
+  const info = el("span", "track-info");
+  info.append(el("span", "track-title", group.title));
+  info.append(el("span", "track-sub", artistName(group) || "아티스트 미상"));
+  const detail = [group["primary-type"], ...(group["secondary-types"] || []), String(group["first-release-date"] || "").slice(0, 4), group.disambiguation].filter(Boolean).join(" · ");
+  if (detail) info.append(el("span", "track-note", detail));
+  link.append(info, el("span", "add", "상세 ↗"));
+  link.title = `${group.title} · ${artistName(group)} · ${detail} — MusicBrainz 상세 보기`;
+  return link;
+}
+
+async function startSearch(query, artist = null) {
+  const signature = artist ? `artist:${artist.id}` : `query:${query}`;
+  if (searchRun?.pending && searchRun.signature === signature) return;
+  searchRun?.controller.abort();
+  const run = { controller: new AbortController(), signature, pending: true };
+  searchRun = run;
+  if (!artist) lastSearchQuery = query;
+  const button = $("search-submit");
+  button.disabled = true;
+  button.textContent = "검색 중…";
+  $("search-count").textContent = "검색 중…";
+  const context = $("search-context");
+  context.replaceChildren();
+  context.hidden = !artist;
+  if (artist) {
+    const back = el("button", "text-button", "← 통합 검색 결과");
+    back.type = "button";
+    back.addEventListener("click", () => startSearch(lastSearchQuery));
+    const original = el("a", "text-button", "MusicBrainz 상세 ↗");
+    original.href = `https://musicbrainz.org/artist/${artist.id}`;
+    original.target = "_blank";
+    original.rel = "noopener noreferrer";
+    context.append(el("h3", "", `${artist.name}의 곡·앨범`), el("p", "muted hint", artist.disambiguation || "선택한 아티스트의 결과만 표시합니다."), back, original);
   }
+  const q = quoteSearch(query);
+  const definitions = artist ? [
+    { entity: "release-group", field: "release-groups", label: "앨범 · EP · 싱글", query: `arid:${artist.id}`, limit: 12, row: albumRow },
+    { entity: "recording", field: "recordings", label: "곡", query: `arid:${artist.id}`, limit: 20, row: rec => songRow(normalizeRecording(rec), true) }
+  ] : [
+    { entity: "artist", field: "artists", label: "아티스트", query: `(artist:${q} OR alias:${q} OR sortname:${q})`, limit: 8, row: artistRow },
+    { entity: "release-group", field: "release-groups", label: "앨범 · EP · 싱글", query: `releasegroup:${q}`, limit: 12, row: albumRow },
+    { entity: "recording", field: "recordings", label: "곡", query: `recording:${q}`, limit: 20, row: rec => songRow(normalizeRecording(rec), true) }
+  ];
+  const results = $("results");
+  results.replaceChildren();
+  let count = 0;
+  let failures = 0;
+  for (const item of definitions) {
+    const section = el("section", "result-section");
+    section.append(el("h3", "result-heading", item.label));
+    item.list = el("div", "track-list");
+    item.list.id = `results-${item.entity}`;
+    item.list.append(el("div", "empty", "검색 대기 중…"));
+    section.append(item.list);
+    results.append(section);
+  }
+  try {
+    for (const item of definitions) {
+      if (searchRun !== run) return;
+      item.list.replaceChildren(el("div", "empty", "검색 중…"));
+      try {
+        const json = await searchBrainz(item.entity, item.query, item.limit, run);
+        if (searchRun !== run) return;
+        const items = rankedResults(json[item.field] || [], artist ? "" : query);
+        count += items.length;
+        item.list.replaceChildren();
+        if (!items.length) item.list.append(el("div", "empty", "결과가 없습니다. 다른 이름이나 별칭으로 검색해 보세요."));
+        else items.forEach(value => item.list.append(item.row(value)));
+        $("search-count").textContent = `${count}개 표시 · 검색 중…`;
+      } catch (error) {
+        if (searchRun !== run || run.controller.signal.aborted) return;
+        failures += 1;
+        item.list.replaceChildren(el("div", "error", `${item.label} 검색 실패: ${error.message}`));
+      }
+    }
+  } finally {
+    run.pending = false;
+    if (searchRun === run) {
+      button.disabled = false;
+      button.textContent = "검색";
+      $("search-count").textContent = `${count}개 표시${failures ? ` · ${failures}개 종류 조회 실패` : ""}`;
+    }
+  }
+}
+
+function searchMusic(event) {
+  event.preventDefault();
+  const query = $("music-query").value.trim();
+  if (!query) { alertUser("검색어를 입력하세요.", true); return; }
+  startSearch(query);
+}
+
+function updateRating() {
+  const score = Number($("rating").value);
+  $("rating-value").value = `${score.toFixed(1)} / 10`;
+  $("rating").setAttribute("aria-valuetext", `${score.toFixed(1)}점 / 10점`);
+  $("rating").style.setProperty("--rating-progress", `${(score - 0.5) / 9.5 * 100}%`);
+  $("rating-minus").disabled = state.saving || score <= 0.5;
+  $("rating-plus").disabled = state.saving || score >= 10;
 }
 
 function openEditor(song) {
@@ -241,7 +377,8 @@ function openEditor(song) {
   state.original = existing ? JSON.stringify(existing) : null;
   $("editor-title").textContent = existing ? "평가 수정" : "새 곡 평가";
   $("editor-subtitle").textContent = [`${song.title} — ${song.artist}`, song.version, song.releaseTitle].filter(Boolean).join(" · ");
-  $("rating").value = existing ? String(existing.rating) : "";
+  $("rating").value = existing ? String(existing.rating) : "5";
+  updateRating();
   $("review").value = existing?.review || "";
   errorIn("editor-error", "");
   $("editor").showModal();
@@ -262,6 +399,7 @@ async function saveReview(event) {
   }
   const button = $("save");
   state.saving = true;
+  updateRating();
   $("editor-close").disabled = true;
   $("rating").disabled = true;
   $("review").disabled = true;
@@ -322,6 +460,7 @@ async function saveReview(event) {
     errorIn("editor-error", error.message);
   } finally {
     state.saving = false;
+    updateRating();
     $("editor-close").disabled = false;
     $("rating").disabled = false;
     $("review").disabled = false;
@@ -361,11 +500,19 @@ function backup() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-for (let n = 10; n >= 0.5; n -= 0.5) {
-  const option = el("option", "", n.toFixed(1));
-  option.value = String(n);
-  $("rating").append(option);
+$("rating").addEventListener("input", updateRating);
+for (const [id, delta] of [["rating-minus", -0.5], ["rating-plus", 0.5]]) {
+  $(id).addEventListener("click", () => {
+    if (state.saving) return;
+    $("rating").value = String(Math.max(0.5, Math.min(10, Number($("rating").value) + delta)));
+    updateRating();
+  });
 }
+updateRating();
+$("music-query").addEventListener("input", () => {
+  $("search-submit").disabled = false;
+  $("search-submit").textContent = "검색";
+});
 $("library-tab").addEventListener("click", () => showTab("library"));
 $("search-tab").addEventListener("click", () => showTab("search"));
 $("library-query").addEventListener("input", renderLibrary);
@@ -387,4 +534,5 @@ $("disconnect").addEventListener("click", () => {
 });
 $("export").addEventListener("click", backup);
 load();
+
 
