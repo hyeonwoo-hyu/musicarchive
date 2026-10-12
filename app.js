@@ -12,7 +12,7 @@ let lastSearchQuery = "";
 let libraryType = "all";
 let viewStack = [];
 const albumCache = new Map();
-const failedCovers = new Set();
+const failedCovers = new Map();
 const popularCache = new Map();
 let listenQueue = Promise.resolve();
 let lastListenLookup = 0;
@@ -120,26 +120,15 @@ function loadCover(image, urls) {
   let index = 0;
   let current = "";
   const next = () => {
-    while (index < urls.length && failedCovers.has(urls[index])) index++;
+    while (index < urls.length && (failedCovers.get(urls[index]) || 0) > Date.now()) index++;
     if (index === urls.length) { image.remove(); return; }
     current = urls[index++];
+    failedCovers.delete(current);
     image.src = current;
   };
-  image.onload = () => { image.style.opacity = "1"; };
-  image.onerror = () => { failedCovers.add(current); next(); };
+  image.onerror = () => { failedCovers.set(current, Date.now() + 60000); next(); };
   // The displayed image makes the request; successful URLs use the browser cache.
   next();
-}
-
-const coverObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
-  for (const entry of entries) {
-    if (!entry.target.isConnected) { coverObserver.unobserve(entry.target); continue; }
-    if (entry.isIntersecting) { coverObserver.unobserve(entry.target); entry.target.loadCover?.(); }
-  }
-}, { rootMargin: "150px" }) : null;
-
-function observeCovers(root) {
-  if (coverObserver) for (const image of root.querySelectorAll("img[data-cover-pending]")) coverObserver.observe(image.parentElement);
 }
 
 function artwork(song, eager = false) {
@@ -149,18 +138,10 @@ function artwork(song, eager = false) {
   if (!urls.length) return box;
   const image = document.createElement("img");
   image.alt = ""; image.loading = eager ? "eager" : "lazy"; image.decoding = "async";
-  image.width = 250; image.height = 250; image.style.opacity = "0";
-  image.dataset.coverPending = "true";
+  image.width = 250; image.height = 250;
   if (eager) image.fetchPriority = "high";
-  let started = false;
-  box.loadCover = () => {
-    if (started) return;
-    started = true; delete image.dataset.coverPending;
-    loadCover(image, urls);
-  };
   box.append(image);
-  if (eager || !coverObserver) box.loadCover();
-  else coverObserver.observe(box);
+  loadCover(image, urls);
   return box;
 }
 
@@ -208,7 +189,6 @@ function renderLibrary() {
       ? "검색 조건에 맞는 곡이 없습니다."
       : "아직 평가한 곡이 없습니다. '곡 검색 · 추가'에서 첫 곡을 등록해 보세요."));
   } else items.forEach(song => list.append(songRow(song)));
-  observeCovers(list);
 }
 
 function showTab(which) {
@@ -489,7 +469,6 @@ function mountView(view) {
   $("search-submit").textContent = "검색";
   refreshSearchCount(view);
   refreshSavedStatuses();
-  observeCovers(view.root); observeCovers(view.context);
 }
 
 function goBack() {
@@ -698,7 +677,6 @@ function renderPopular(view, records) {
   view.popularPanel.replaceChildren(el("h3", "result-heading", "인기곡 · ListenBrainz 기준"),
     el("p", "caption", "상위 20개 Recording · 같은 제목의 다른 녹음은 유지하며, 확인된 MusicBrainz 버전 정보만 표시합니다."), list);
   if (!records.length) view.popularPanel.append(el("p", "hint", "이 아티스트의 청취 통계가 아직 없습니다. 기존 곡·발매작 검색을 이용하세요."));
-  observeCovers(view.popularPanel);
 }
 
 async function loadPopular(view) {
