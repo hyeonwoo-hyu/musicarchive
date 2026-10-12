@@ -16,6 +16,7 @@ let viewStack = [];
 let callTimes = [];
 let callQueue = Promise.resolve();
 let preferJSONP = false;
+const appleMobileBrowser = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const apiCache = new Map();
 let sandboxFrame = null;
 let sandboxReady = null;
@@ -298,12 +299,16 @@ async function api(path, params, view) {
     const cancel = () => controller.abort(); signal.addEventListener("abort", cancel, { once: true });
     const timer = setTimeout(cancel, 14000);
     try {
-      const response = await fetch(url.href, { signal: controller.signal, cache: "no-store" });
+      // iPhone's default UA makes Apple redirect API calls to musics://.
+      // WebKit permits this request header; Apple's CORS preflight permits it too.
+      const response = await fetch(url.href, { signal: controller.signal, cache: "no-store", headers: { "User-Agent": "MusicArchive/1.0" } });
       if (!response.ok) throw new Error(`Apple API 응답 ${response.status}${response.status === 429 ? " · 잠시 후 다시 시도하세요." : ""}`);
       data = await response.json();
     } catch (error) {
       if (signal.aborted) throw new DOMException("취소됨", "AbortError");
       if (!(error instanceof TypeError) && error.name !== "AbortError") throw error;
+      // JSONP uses the browser UA and reaches the same app redirect on iOS.
+      if (appleMobileBrowser) throw new Error("Apple API 연결 실패 · 잠시 후 다시 조회해 주세요.");
       preferJSONP = true;
       data = await jsonp(url.href, signal);
     } finally { clearTimeout(timer); signal.removeEventListener("abort", cancel); }
