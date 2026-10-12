@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#f8f9fb">
   <meta name="description" content="내가 좋아하는 음악을 평가하고 기록하는 개인 아카이브">
   <title>My Music Archive</title>
-  <link rel="preconnect" href="https://archive.org">
-  <link rel="preconnect" href="https://coverartarchive.org">
-  <link rel="stylesheet" href="./style.css?v=20261012-4">
-  <script src="./app.js?v=20261012-8" defer></script>
+  <link rel="preconnect" href="https://itunes.apple.com" crossorigin>
+  <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
+  <link rel="stylesheet" href="./style.css?v=20261013-itunes">
+  <script src="./app.js?v=20261013-itunes" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -31,7 +31,7 @@
 
     <nav class="tabs" aria-label="화면 선택">
       <button type="button" class="tab active" id="library-tab" aria-controls="library-panel" aria-selected="true">내 라이브러리</button>
-      <button type="button" class="tab" id="search-tab" aria-controls="search-panel" aria-selected="false">곡 검색 · 추가</button>
+      <button type="button" class="tab" id="search-tab" aria-controls="search-panel" aria-selected="false">음악 검색 · 추가</button>
     </nav>
 
     <section id="library-panel" aria-labelledby="library-tab">
@@ -49,7 +49,7 @@
       <div class="filterbar">
         <label class="field-with-icon"><span class="sr-only">내 음악 검색</span>
           <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
-          <input id="library-query" type="search" placeholder="곡명 또는 아티스트 검색">
+          <input id="library-query" type="search" placeholder="제목 또는 아티스트 검색">
         </label>
         <label class="sr-only" for="sort">정렬 기준</label>
         <select id="sort">
@@ -65,23 +65,27 @@
 
     <section id="search-panel" aria-labelledby="search-tab" hidden>
       <h2>음악 찾기</h2>
-      <p class="muted hint">음악을 검색하고 곡에 개인 평가를 남겨 보세요. 아티스트를 선택하면 곡과 앨범을 볼 수 있습니다.</p>
+      <p class="muted hint">음악을 검색해 곡과 발매작에 평가를 남겨 보세요. 아티스트를 선택하면 발매작을 볼 수 있습니다.</p>
       <form id="search-form" class="search-form">
         <label><span class="sr-only">곡명, 앨범명, 아티스트 검색</span><input id="music-query" type="search" placeholder="곡명, 앨범명, 아티스트 검색" autocomplete="off" required maxlength="200"></label>
+        <label><span class="sr-only">스토어 카탈로그</span><select id="search-country" aria-describedby="country-help"><option value="DE">독일 DE</option><option value="JP">일본 JP</option><option value="US">미국 US</option></select></label>
         <button type="submit" class="primary" id="search-submit">검색</button>
       </form>
+      <p id="country-help" class="caption">선택한 국가의 스토어 카탈로그에서만 검색합니다. 음악의 국적을 뜻하지 않으며 제목 표기는 국가마다 다를 수 있습니다.</p>
       <div class="section-header"><h2>검색 결과</h2><span class="muted hint" id="search-count"></span></div>
       <div id="search-context" hidden></div>
       <div class="search-results" id="results" aria-live="polite"><div class="empty">곡명, 앨범명 또는 아티스트를 검색해 보세요.</div></div>
-      <p class="caption">같은 제목이라도 녹음과 발매판이 다를 수 있습니다. MusicBrainz에 등록된 메타데이터를 표시합니다.</p>
+      <p class="caption">Apple 카탈로그의 곡·발매작 정보를 표시합니다. 조회한 결과 안에서 더보기를 지원합니다.</p>
     </section>
   </main>
 
-  <footer class="container footer">Music metadata: <a href="https://musicbrainz.org/" target="_blank" rel="noopener noreferrer">MusicBrainz</a> · Covers: <a href="https://coverartarchive.org/" target="_blank" rel="noopener noreferrer">Cover Art Archive</a></footer>
+  <footer class="container footer">음악 정보와 커버: Apple iTunes Search API · <a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener noreferrer">API 안내</a></footer>
 
   <dialog id="editor" class="modal">
     <form id="editor-form">
       <div class="modal-head"><div><p class="eyebrow">MY RECORD</p><h2 id="editor-title">곡 평가</h2><p class="muted hint" id="editor-subtitle"></p></div><button type="button" id="editor-close" class="close" aria-label="닫기">×</button></div>
+      <label for="display-title">표시 제목<input id="display-title" type="text" maxlength="300" aria-describedby="title-help" autocomplete="off"></label>
+      <div class="title-original"><p id="title-help" class="caption">원본 제목: <span id="original-title"></span></p><button id="restore-title" type="button" class="text-button">원본으로 복원</button></div>
       <div class="rating-field">
         <label for="rating">나의 평점</label>
         <output id="rating-value" for="rating" class="rating-value">5.0 / 10</output>
@@ -110,6 +114,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
+
 
 
 

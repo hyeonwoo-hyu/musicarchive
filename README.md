@@ -1,32 +1,28 @@
 # My Music Archive
 
-MusicBrainz에서 곡을 검색하고 개인 평점·감상평을 저장하는 GitHub Pages 웹사이트입니다.
+Apple iTunes Search API에서 음악을 검색하고 곡·발매작에 평점과 감상평을 남기는 개인 아카이브입니다.
 
-## 구성
+- HTML, CSS, Vanilla JavaScript / GitHub Pages. npm, 빌드, 백엔드는 없습니다.
+- DE 카탈로그가 기본이고 JP·US를 선택할 수 있습니다. 선택한 국가에서만 검색합니다.
+- 아티스트·발매작·곡 검색은 최대 100개를 조회한 뒤 더보기로 나눠 표시합니다. 전체 카탈로그의 무제한 페이지네이션이나 인기순은 제공하지 않습니다.
+- 아티스트를 선택하면 발매작, 발매작을 선택하면 디스크·트랙 순서의 수록곡을 봅니다.
+- 곡과 발매작을 독립적으로 평가합니다. 표시 제목을 수정해도 Apple ID와 원본 제목은 유지됩니다.
+- Apple 이미지 URL을 직접 사용하며 각 커버에 Apple Music 원본 링크와 공식 배지를 제공합니다. API가 제공하지 않는 EP/Single 구분을 추정하지 않습니다.
 
-- HTML, CSS, JavaScript만 사용합니다. npm·빌드·서버 설치가 필요 없습니다.
-- MusicBrainz: 곡명, 아티스트, 발매 정보 검색
-- Cover Art Archive: 커버 이미지 제공(등록되지 않은 커버는 기본 이미지)
-- GitHub Contents API: `main` 브랜치의 `data.json`에 평점·감상평 저장
+## 기록과 인증
 
-## 배포
+평가 모달에서 0.5~10점(0.5점 단위), 선택적 감상평과 표시 제목을 입력합니다. 처음 저장할 때 관리자 연결창에 이 저장소의 **Contents: Read and write** 권한이 있는 GitHub Fine-grained PAT를 입력하면 작성한 평가를 이어서 저장합니다.
 
-GitHub 저장소의 **Settings → Pages**에서 `Deploy from a branch` / `main` / `/(root)`를 선택하세요.
+PAT는 브라우저 런타임 메모리에만 유지하고 새로고침·연결 해제로 지워집니다. Safari 암호 앱에 hyeonwoo-hyu.github.io의 사용자명과 PAT를 등록해 자동완성을 선택하거나 직접 붙여넣을 수 있습니다. 공개 저장소이므로 평가와 감상평은 공개됩니다.
 
-예상 주소: https://hyeonwoo-hyu.github.io/musicarchive/
+GitHub Contents API에서 최신 data.json과 SHA를 조회하고 같은 평가의 변경 여부를 확인합니다. 저장 실패와 SHA 충돌 시 작성 내용을 유지합니다. 라이브러리 검색·정렬과 JSON 백업을 지원합니다.
 
-## 기록 방법
+## 데이터와 요청
 
-1. **곡 검색 · 추가**에서 곡을 찾습니다.
-2. 검색 결과를 누르고 평점과 감상평을 적습니다.
-3. 첫 저장 시 **관리자 연결**에서 해당 저장소에 `Contents: Read and write` 권한이 있는 Fine-grained PAT를 입력합니다.
-4. 평가 창으로 돌아와 다시 저장을 누릅니다. GitHub에서 `data.json`에 커밋됩니다.
-5. 이후 기록은 **내 라이브러리**에서 검색·정렬하고 JSON으로 백업할 수 있습니다.
+각 기록은 type(track/album), 숫자 Apple id, title, originalTitle, artist, artistId, collectionId, collectionTitle, artworkUrl, storeUrl, country, year, rating, review, updatedAt를 갖습니다. 같은 종류와 Apple ID는 한 번만 등록합니다.
 
-## 유의사항
+API는 일반 fetch를 먼저 사용합니다. CORS/네트워크 실패 시 테스트 페이지와 같은 allow-scripts 전용 sandbox iframe에서 JSONP를 실행합니다. 외부 스크립트는 관리자 페이지의 DOM·PAT에 접근할 수 없습니다. 물리 요청은 분당 최대 18회로 제한하고 같은 조회는 세션에서 재사용합니다.
 
-- 공개 저장소이므로 **평가와 감상평은 누구나 열람할 수 있습니다**.
-- **토큰을 소스코드·저장소·채팅에 올리지 마세요.** 토큰은 이 페이지의 브라우저 메모리에만 보관되며 새로고침하면 삭제됩니다. 이 방식도 XSS나 악성 브라우저 확장 등으로 인한 토큰 탈취 위험이 있으니 믿을 수 있는 본인 기기에서만 사용하세요.
-- GitHub에 데이터를 저장한 후 GitHub Pages의 배포가 조금 늦을 수 있습니다. 사이트는 GitHub API에서 최신 데이터를 먼저 불러오고 실패하면 배포된 `data.json`을 읽습니다.
-- MusicBrainz 웹 API는 초당 1회 이하로 요청해야 하며 식별 가능한 User-Agent 정책이 있습니다. 브라우저에서 User-Agent를 임의로 지정할 수 없으므로 환경·정책에 따라 API 직접 호출이 제한될 수 있습니다.
-- JSON 파일을 수정할 때는 GitHub의 최신 SHA를 확인하고, 같은 곡이 동시에 변경됐다면 저장을 중단해 덮어쓰기를 방지합니다.
+Apple 공식 문서: https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/Searching.html
+
+배포는 GitHub Pages → main / (root)입니다. 사이트: https://hyeonwoo-hyu.github.io/musicarchive/
