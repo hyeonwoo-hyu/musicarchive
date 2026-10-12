@@ -12,6 +12,9 @@ let lastSearchQuery = "";
 let libraryType = "all";
 let viewStack = [];
 const albumCache = new Map();
+const coverLoads = new Map();
+let pendingSave = null;
+let authAttempt = null;
 const recordType = song => song.type === undefined ? "track" : song.type;
 const recordKey = song => `${recordType(song)}:${song.id}`;
 const savedRecord = song => state.songs.find(x => recordKey(x) === recordKey(song));
@@ -69,10 +72,10 @@ function validateSongs(songs) {
   return songs;
 }
 
-async function readGitHub(token = "") {
+async function readGitHub(token = "", signal) {
   const headers = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const response = await fetch(`${FILE_API}?ref=main`, { headers, cache: "no-store" });
+  const response = await fetch(`${FILE_API}?ref=main`, { headers, cache: "no-store", signal });
   if (!response.ok) throw new Error(`GitHub 파일 조회 실패 (${response.status})`);
   const file = await response.json();
   const songs = JSON.parse(decodeBase64(file.content));
@@ -100,8 +103,8 @@ async function load() {
 
 function coverCandidates(song) {
   const urls = [];
-  if (isMBID(song.releaseGroupId)) urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-250`);
   if (isMBID(song.releaseId)) urls.push(`https://coverartarchive.org/release/${song.releaseId}/front-250`);
+  if (isMBID(song.releaseGroupId)) urls.push(`https://coverartarchive.org/release-group/${song.releaseGroupId}/front-250`);
   // Only use alternate releases verified to belong to the selected group.
   for (const id of song.coverReleaseIds || []) {
     if (isMBID(id)) urls.push(`https://coverartarchive.org/release/${id}/front-250`);
@@ -109,27 +112,64 @@ function coverCandidates(song) {
   return [...new Set(urls)].slice(0, 5);
 }
 
-function artwork(song) {
-  const box = el("span", "art", "♫");
-  const urls = coverCandidates(song);
-  if (urls.length) {
-    const image = document.createElement("img");
-    image.alt = "";
-    image.loading = "lazy";
-    let i = 0;
-    image.onerror = () => {
-      i += 1;
-      if (i < urls.length) image.src = urls[i];
-      else { image.remove(); box.textContent = "♫"; }
-    };
-    box.textContent = "";
-    box.append(image);
-    image.src = urls[0];
+function loadCover(url, eager = false) {
+  if (!coverLoads.has(url)) coverLoads.set(url, new Promise(resolve => {
+    const probe = new Image();
+    probe.decoding = "async";
+    probe.fetchPriority = eager ? "high" : "auto";
+    probe.onload = () => resolve(true);
+    probe.onerror = () => resolve(false);
+    probe.src = url;
+  }));
+  return coverLoads.get(url);
+}
+
+const coverObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.target.isConnected) { coverObserver.unobserve(entry.target); continue; }
+    if (entry.isIntersecting) { coverObserver.unobserve(entry.target); entry.target.loadCover?.(); }
   }
+}, { rootMargin: "150px" }) : null;
+
+function observeCovers(root) {
+  if (coverObserver) for (const image of root.querySelectorAll("img[data-cover-pending]")) coverObserver.observe(image.parentElement);
+}
+
+function artwork(song, eager = false) {
+  const box = el("span", "art", "♫");
+  box.setAttribute("aria-hidden", "true");
+  const urls = coverCandidates(song);
+  if (!urls.length) return box;
+  const image = document.createElement("img");
+  image.alt = ""; image.loading = eager ? "eager" : "lazy"; image.decoding = "async";
+  image.width = 250; image.height = 250; image.style.opacity = "0";
+  image.dataset.coverPending = "true";
+  if (eager) image.fetchPriority = "high";
+  let started = false;
+  let index = 0;
+  const nextCover = async () => {
+    while (index < urls.length) {
+      const url = urls[index++];
+      if (!await loadCover(url, eager)) continue;
+      image.onload = () => { image.style.opacity = "1"; };
+      image.onerror = () => { coverLoads.set(url, Promise.resolve(false)); nextCover(); };
+      image.src = url;
+      return;
+    }
+    image.remove();
+  };
+  box.loadCover = () => {
+    if (started) return;
+    started = true; delete image.dataset.coverPending;
+    nextCover();
+  };
+  box.append(image);
+  if (eager || !coverObserver) box.loadCover();
+  else coverObserver.observe(box);
   return box;
 }
 
-function songRow(song, fromSearch = false) {
+function songRow(song, fromSearch = false, dateNote = "") {
   const button = el("button", "track");
   button.type = "button";
   button.append(artwork(song));
@@ -137,7 +177,7 @@ function songRow(song, fromSearch = false) {
   info.append(el("span", "track-title", song.title || "제목 없음"));
   info.append(el("span", "track-sub", song.artist || "아티스트 미상"));
   const kind = recordType(song) === "album" ? (song.releaseType || "발매작") : "곡";
-  const detail = [kind, song.version, fromSearch ? song.releaseTitle : String(song.review || "").replace(/\s+/g, " ").slice(0, 80), song.year].filter(Boolean).join(" · ");
+  const detail = [kind, song.version, fromSearch ? song.releaseTitle : String(song.review || "").replace(/\s+/g, " ").slice(0, 80), dateNote || song.year].filter(Boolean).join(" · ");
   if (fromSearch) button.title = [song.title, song.artist, detail].filter(Boolean).join(" · ");
   if (detail) info.append(el("span", "track-note", detail));
   button.append(info);
@@ -173,6 +213,7 @@ function renderLibrary() {
       ? "검색 조건에 맞는 곡이 없습니다."
       : "아직 평가한 곡이 없습니다. '곡 검색 · 추가'에서 첫 곡을 등록해 보세요."));
   } else items.forEach(song => list.append(songRow(song)));
+  observeCovers(list);
 }
 
 function showTab(which) {
@@ -193,8 +234,10 @@ function normalizeRecording(rec) {
   const releases = rec.releases || [];
   const official = releases.filter(x => x.status === "Official");
   const options = official.length ? official : releases;
-  const singles = options.filter(x => x["release-group"]?.["primary-type"] === "Single");
-  const chosen = singles.find(x => x.title === rec.title) || singles[0] || options[0] || {};
+  const normal = options.filter(x => normalRelease(x["release-group"]));
+  const pool = !recordingVersions(rec).length && normal.length ? normal : options;
+  const singles = pool.filter(x => x["release-group"]?.["primary-type"] === "Single");
+  const chosen = singles.find(x => x.title === rec.title) || singles[0] || pool[0] || {};
   const groupId = chosen["release-group"]?.id || "";
   const coverReleaseIds = options.filter(x => x.id !== chosen.id && groupId && x["release-group"]?.id === groupId).slice(0, 3).map(x => x.id);
   return {
@@ -206,7 +249,7 @@ function normalizeRecording(rec) {
     releaseGroupId: groupId,
     alternateReleaseIds: coverReleaseIds,
     coverReleaseIds,
-    version: rec.disambiguation || (chosen["release-group"]?.["secondary-types"] || []).join(" · "),
+    version: rec.disambiguation || ((chosen["release-group"]?.["secondary-types"] || []).length ? `발매작: ${chosen["release-group"]["secondary-types"].join(" · ")}` : ""),
     year: String(rec["first-release-date"] || chosen.date || "").slice(0, 4)
   };
 }
@@ -256,15 +299,100 @@ const searchKey = text => String(text || "").normalize("NFKC").toLocaleLowerCase
 const artistNames = artist => [artist.name, artist["sort-name"], ...(artist.aliases || []).map(x => x.name)].filter(Boolean);
 const artistMatches = (artist, text) => artistNames(artist).some(x => searchKey(x) === searchKey(text));
 
-function rankedResults(items, query) {
+function recordingVersions(rec) {
+  // A title or a live release alone does not establish a recording's version.
+  const comment = rec.disambiguation || "";
+  return ["Live", "Remix", "Demo", "Cover", "Acoustic", "Instrumental"].filter(label => new RegExp(`\\b${label}\\b`, "i").test(comment)
+    && !new RegExp(`\\b(?:not|non|no)\\s*[- ]?\\s*(?:a\\s+)?${label}\\b`, "i").test(comment));
+}
+
+function normalRelease(group) {
+  return ["Album", "EP", "Single"].includes(group?.["primary-type"])
+    && !(group["secondary-types"] || []).some(x => ["Live", "Remix", "Compilation", "Spokenword"].includes(x));
+}
+
+function versionPreference(item, entity) {
+  if (entity === "recording") {
+    if (recordingVersions(item).some(x => ["Live", "Remix", "Demo", "Cover"].includes(x))) return -1;
+    // A normal official release is positive evidence, not proof of an original recording.
+    return (item.releases || []).some(x => x.status === "Official" && normalRelease(x["release-group"])) ? 1 : 0;
+  }
+  if (entity === "release-group") return (item["secondary-types"] || []).some(x => ["Live", "Remix", "Compilation", "Spokenword"].includes(x)) ? -1 : normalRelease(item) ? 1 : 0;
+  return 0;
+}
+
+function resultDate(item, entity) {
+  const date = item["first-release-date"];
+  return /^\d{4}(?:-\d{2})?(?:-\d{2})?$/.test(date || "") ? date : "";
+}
+
+function recordingDateNote(rec, song) {
+  const first = rec["first-release-date"];
+  const release = (rec.releases || []).find(x => x.id === song.releaseId)?.date;
+  return [first && `최초 발매 ${first}`, release && release !== first && `표시 판본 ${release}`].filter(Boolean).join(" · ");
+}
+
+function searchTrackRow(rec) {
+  const song = normalizeRecording(rec);
+  return songRow(song, true, recordingDateNote(rec, song));
+}
+
+function matchesPageFilter(item, page) {
+  if (["all", "standard"].includes(page.filter)) return true;
+  if (page.entity === "recording") return recordingVersions(item).includes(page.filter);
+  if (["Album", "EP", "Single"].includes(page.filter)) return item["primary-type"] === page.filter;
+  return (item["secondary-types"] || []).includes(page.filter);
+}
+
+function addResultControls(page) {
+  if (page.entity === "artist") return;
+  page.filter = "all"; page.sortOrder = "relevance"; page.nodes = new Map();
+  const bar = el("div", "result-controls");
+  const filter = el("select"); filter.setAttribute("aria-label", `${page.label} 불러온 결과 필터`);
+  const options = page.entity === "recording" ? [["all", "전체 버전"], ["standard", "일반 버전 우선"], ["Live", "Live 확인"], ["Remix", "Remix 확인"]]
+    : [["all", "전체 발매작"], ["Album", "Album"], ["EP", "EP"], ["Single", "Single"], ["Compilation", "Compilation"], ["Live", "Live"]];
+  for (const [value, text] of options) { const option = el("option", "", text); option.value = value; filter.append(option); }
+  const sort = el("select"); sort.setAttribute("aria-label", `${page.label} 불러온 결과 정렬`);
+  for (const [value, text] of [["relevance", "관련도순"], ["oldest", "불러온 결과 내 오래된순"], ["newest", "불러온 결과 내 최신순"]]) { const option = el("option", "", text); option.value = value; sort.append(option); }
+  const note = el("p", "caption", "필터·날짜순은 불러온 결과에만 적용합니다. 날짜는 최초 발매일 기준입니다.");
+  if (page.entity === "recording") note.textContent += " Live·Remix 필터는 녹음 설명에서 확인된 버전만 표시합니다.";
+  bar.append(filter, sort, note);
+  page.section.insertBefore(bar, page.list);
+  filter.addEventListener("change", () => { page.filter = filter.value; renderResultPage(page); });
+  sort.addEventListener("change", () => { page.sortOrder = sort.value; renderResultPage(page); });
+}
+
+function renderResultPage(page) {
+  if (!page.nodes) return;
+  const items = page.items.filter(item => matchesPageFilter(item, page));
+  if (page.sortOrder !== "relevance") items.sort((a, b) => {
+    const first = resultDate(a, page.entity); const second = resultDate(b, page.entity);
+    if (!first || !second) return Number(Boolean(second)) - Number(Boolean(first));
+    return page.sortOrder === "newest" ? second.localeCompare(first) : first.localeCompare(second);
+  });
+  else if (page.filter === "standard") items.sort((a, b) => versionPreference(b, page.entity) - versionPreference(a, page.entity));
+  // Move existing rows; their images, handlers and caches are kept intact.
+  const visible = new Set(items.map(x => x.id));
+  for (const [id, node] of page.nodes) node.hidden = !visible.has(id);
+  const mode = `${page.filter}|${page.sortOrder}`;
+  if (page.renderMode !== mode || page.sortOrder !== "relevance" || page.filter === "standard") for (const item of items) page.list.append(page.nodes.get(item.id));
+  page.renderMode = mode;
+  page.visibleCount = items.length;
+  if (!items.length && page.items.length && !page.failed && !page.loading) page.message.textContent = "불러온 결과에 맞는 항목이 없습니다. 전체를 선택하거나 더보기로 추가하세요.";
+  else if (!page.failed && !page.loading && page.items.length) page.message.textContent = "";
+  updatePageControls(page); refreshSearchCount(page.view);
+}
+
+function rankedResults(items, query, page = {}) {
   const seen = new Set();
   const wanted = (Array.isArray(query) ? query : [query]).filter(Boolean).map(searchKey);
   const exact = item => [item.name, item.title, item["sort-name"], ...(item.aliases || []).map(x => x.name)].reduce((rank, text) => {
     const index = text ? wanted.indexOf(searchKey(text)) : -1;
     return Math.max(rank, index < 0 ? 0 : wanted.length - index);
   }, 0);
+  const artistMatch = item => (page.artistMbids || []).some(id => (item["artist-credit"] || []).some(credit => credit.artist?.id === id));
   return items.filter(item => isMBID(item.id) && !seen.has(item.id) && seen.add(item.id))
-    .sort((a, b) => exact(b) - exact(a));
+    .sort((a, b) => exact(b) - exact(a) || Number(artistMatch(b)) - Number(artistMatch(a)) || Number(b.score || 0) - Number(a.score || 0) || versionPreference(b, page.entity) - versionPreference(a, page.entity));
 }
 
 function compoundCandidates(query) {
@@ -366,6 +494,7 @@ function mountView(view) {
   $("search-submit").textContent = "검색";
   refreshSearchCount(view);
   refreshSavedStatuses();
+  observeCovers(view.root); observeCovers(view.context);
 }
 
 function goBack() {
@@ -393,7 +522,7 @@ function addBack(view) {
 
 function refreshSearchCount(view) {
   if (searchRun !== view) return;
-  const count = view.sections.reduce((sum, page) => sum + page.items.length, 0);
+  const count = view.sections.reduce((sum, page) => sum + (page.visibleCount ?? page.items.length), 0);
   $("search-count").textContent = view.kind === "album" ? "발매작 상세" : `${count}개 표시${view.pending ? " · 조회 중…" : ""}`;
 }
 
@@ -413,12 +542,14 @@ function createPage(view, entity, query, label, limit, row, rankQuery = "") {
   section.append(heading, page.list, page.message, page.more);
   view.root.append(section);
   view.sections.push(page);
+  page.artistMbids = view.artist ? [view.artist.id] : [];
+  addResultControls(page);
   updatePageControls(page);
   return page;
 }
 
 function updatePageControls(page) {
-  page.summary.textContent = `${page.items.length}${page.count === null ? "" : ` / ${page.count}`}개 표시`;
+  page.summary.textContent = `${page.visibleCount ?? page.items.length}개 표시 · ${page.items.length}${page.count === null ? "" : ` / ${page.count}`}개 조회`;
   page.more.disabled = page.loading || !page.query;
   page.more.hidden = page.done;
   page.more.textContent = page.loading ? "조회 중…" : page.failed ? "다시 시도" : page.offset ? "더보기" : "조회하기";
@@ -439,12 +570,14 @@ async function loadPage(page) {
     const raw = json[field] || [];
     const count = Number(json.count ?? json[`${page.entity}-count`]);
     page.count = Number.isFinite(count) ? count : null;
-    const items = rankedResults(raw, page.rankQuery);
+    const items = rankedResults(raw, page.rankQuery, page);
     for (const item of items) {
       if (page.ids.has(item.id)) continue;
       page.ids.add(item.id);
       page.items.push(item);
-      page.list.append(page.row(item));
+      const node = page.row(item);
+      page.nodes?.set(item.id, node);
+      page.list.append(node);
     }
     // The API offset counts raw results, including duplicate IDs.
     page.offset += raw.length;
@@ -459,6 +592,7 @@ async function loadPage(page) {
     return null;
   } finally {
     page.loading = false;
+    renderResultPage(page);
     updatePageControls(page);
     refreshSearchCount(page.view);
   }
@@ -473,7 +607,7 @@ async function startSearch(query) {
   const names = [...new Set([query, ...candidates.map(x => x.artist)])];
   const artistPage = createPage(view, "artist", names.map(artistQuery).join(" OR "), "아티스트", 8, artistRow, query);
   const albumPage = createPage(view, "release-group", "", "발매작 · Album / EP / Single", 12, albumRow, query);
-  const trackPage = createPage(view, "recording", "", "곡", 20, rec => songRow(normalizeRecording(rec), true), query);
+  const trackPage = createPage(view, "recording", "", "곡", 20, searchTrackRow, query);
   // Dependent title queries wait for artist identification; do not expose an empty-query request.
   albumPage.more.disabled = true;
   trackPage.more.disabled = true;
@@ -483,6 +617,7 @@ async function startSearch(query) {
     const parts = artistPage.items.some(x => artistMatches(x, query)) ? [] : candidates;
     const exactTitles = parts.filter(part => artistPage.failed || artistPage.items.some(x => artistMatches(x, part.artist))).map(part => part.title);
     albumPage.rankQuery = trackPage.rankQuery = [query, ...exactTitles];
+    albumPage.artistMbids = trackPage.artistMbids = parts.flatMap(part => artistPage.items.filter(artist => artistMatches(artist, part.artist)).map(artist => artist.id));
     albumPage.query = combinedQuery("release-group", query, parts, artistPage.items);
     trackPage.query = combinedQuery("recording", query, parts, artistPage.items);
     updatePageControls(albumPage); updatePageControls(trackPage);
@@ -496,6 +631,10 @@ async function openArtist(artist) {
   view.artist = artist;
   addBack(view);
   view.context.append(el("h3", "", artist.name), el("p", "muted hint", artistInfo(artist)), el("p", "muted hint", `다른 표기: ${artistNames(artist).filter(x => x !== artist.name).slice(0, 5).join(", ") || "—"}`), externalLink("artist", artist.id));
+  const popular = el("a", "secondary artist-popular-button", "인기곡 · ListenBrainz에서 보기 ↗");
+  popular.href = `https://listenbrainz.org/artist/${artist.id}/`;
+  popular.target = "_blank"; popular.rel = "noopener noreferrer";
+  view.context.append(popular, el("p", "caption", "ListenBrainz 청취 통계를 원본 페이지에서 확인합니다. 전체 스트리밍 서비스의 인기순은 아닙니다."));
   const form = el("form", "artist-search");
   const label = el("label", "sr-only", "이 아티스트의 곡·발매작 검색");
   const input = el("input"); input.type = "search"; input.placeholder = "이 아티스트의 곡·발매작 검색"; input.id = "artist-within-query"; label.htmlFor = input.id;
@@ -519,7 +658,7 @@ async function artistSearch(view, text, type) {
   view.root.replaceChildren(); view.sections = [];
   const base = `arid:${view.artist.id}`;
   const albums = createPage(view, "release-group", [base, text && titleQuery("release-group", text), type && `primarytype:${quoteSearch(type)}`].filter(Boolean).join(" AND "), "발매작", 12, albumRow, text);
-  const tracks = previousTracks || createPage(view, "recording", [base, text && titleQuery("recording", text)].filter(Boolean).join(" AND "), "곡", 20, rec => songRow(normalizeRecording(rec), true), text);
+  const tracks = previousTracks || createPage(view, "recording", [base, text && titleQuery("recording", text)].filter(Boolean).join(" AND "), "곡", 20, searchTrackRow, text);
   if (previousTracks) { tracks.controller = controller; view.sections.push(tracks); view.root.append(tracks.section); updatePageControls(tracks); }
   try { await loadPage(albums); if (!controller.signal.aborted && !previousTracks) await loadPage(tracks); }
   finally { if (view.controller === controller) { view.pending = false; refreshSearchCount(view); } }
@@ -561,7 +700,7 @@ async function openAlbum(group) {
   view.returnLibrary = returnLibrary;
   addBack(view);
   const hero = el("div", "album-hero");
-  hero.append(artwork(album));
+  hero.append(artwork(album, true));
   const info = el("div", "track-info");
   info.append(el("h2", "", album.title), el("p", "muted", album.artist), el("p", "hint", [album.releaseType, ...(album.secondaryTypes || []), album.year].filter(Boolean).join(" · ")), externalLink("release-group", album.id));
   hero.append(info); view.context.append(hero);
@@ -617,6 +756,7 @@ async function openAlbum(group) {
       }
       if (controller.signal.aborted) return;
       view.album.releaseId = detail.id;
+      hero.querySelector(".art")?.replaceWith(artwork(view.album, true));
       const previous = edition.querySelector(".selected-edition"); previous?.remove();
       const chosen = el("div", "selected-edition");
       chosen.append(el("p", "hint", `표시 판본: ${detail.title} · ${releaseDescription(detail)}`), externalLink("release", detail.id, `Release ${detail.id.slice(0, 8)}… ↗`)); edition.append(chosen);
@@ -679,18 +819,20 @@ function openEditor(song) {
 }
 
 async function saveReview(event) {
-  event.preventDefault();
+  event?.preventDefault();
   if (!state.editing || state.saving) return;
-  if (!state.token) {
-    $("admin").showModal();
-    alertUser("먼저 관리자 연결을 완료해 주세요.");
-    return;
-  }
   const score = Number($("rating").value);
   if (!$("rating").value || !Number.isFinite(score) || score < 0.5 || score > 10 || score * 2 % 1 !== 0) {
     errorIn("editor-error", "평점은 0.5~10점 사이에서 선택해 주세요.");
     return;
   }
+  if (!state.token) {
+    pendingSave = recordKey(state.editing);
+    $("admin").showModal();
+    alertUser("관리자 연결 후 작성한 평가를 저장합니다.");
+    return;
+  }
+  pendingSave = null;
   const button = $("save");
   state.saving = true;
   updateRating();
@@ -766,24 +908,37 @@ async function saveReview(event) {
   }
 }
 
+function cancelAdminConnect() {
+  authAttempt?.abort(); authAttempt = null; pendingSave = null;
+  $("token").value = ""; $("connect").disabled = false;
+}
+
 async function connect(event) {
   event.preventDefault();
+  if (authAttempt || !$("admin").open) return;
+  const controller = new AbortController();
+  authAttempt = controller;
   const token = $("token").value.trim();
   const button = $("connect");
   button.disabled = true;
   errorIn("admin-error", "");
   try {
-    await readGitHub(token);
+    await readGitHub(token, controller.signal);
+    if (controller.signal.aborted || authAttempt !== controller || !$("admin").open) return;
+    const resume = pendingSave;
+    pendingSave = null; authAttempt = null;
     state.token = token;
     $("token").value = "";
     $("admin").close();
     $("admin-button").textContent = "관리자 연결됨";
     $("disconnect").hidden = false;
     alertUser("GitHub 조회 확인 완료. 쓰기 권한은 실제 저장 시 확인됩니다.");
+    if (resume && state.editing && recordKey(state.editing) === resume && $("editor").open) await saveReview();
   } catch (error) {
-    errorIn("admin-error", `연결 실패: ${error.message}`);
+    if (!controller.signal.aborted && $("admin").open && authAttempt === controller) errorIn("admin-error", `연결 실패: ${error.message}`);
   } finally {
-    button.disabled = false;
+    if (authAttempt === controller) authAttempt = null;
+    if (!authAttempt) button.disabled = false;
   }
 }
 
@@ -826,11 +981,12 @@ $("library-query").addEventListener("input", renderLibrary);
 $("sort").addEventListener("change", renderLibrary);
 $("search-form").addEventListener("submit", searchMusic);
 $("editor-form").addEventListener("submit", saveReview);
-$("editor-close").addEventListener("click", () => $("editor").close());
+$("editor-close").addEventListener("click", () => { pendingSave = null; $("editor").close(); });
 $("editor").addEventListener("cancel", event => { if (state.saving) event.preventDefault(); });
 $("admin-button").addEventListener("click", () => $("admin").showModal());
-$("admin-close").addEventListener("click", () => $("admin").close());
-$("admin").addEventListener("close", () => { $("token").value = ""; });
+$("admin-close").addEventListener("click", () => { cancelAdminConnect(); $("admin").close(); });
+$("admin").addEventListener("cancel", cancelAdminConnect);
+$("admin").addEventListener("close", cancelAdminConnect);
 $("admin-form").addEventListener("submit", connect);
 $("disconnect").addEventListener("click", () => {
   state.token = "";
@@ -841,6 +997,7 @@ $("disconnect").addEventListener("click", () => {
 });
 $("export").addEventListener("click", backup);
 load();
+
 
 
 

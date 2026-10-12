@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#f8f9fb">
   <meta name="description" content="내가 좋아하는 음악을 평가하고 기록하는 개인 아카이브">
   <title>My Music Archive</title>
-  <link rel="stylesheet" href="./style.css">
-  <script src="./app.js" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261012-4">
+  <script src="./app.js?v=20261012-4" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -94,10 +94,12 @@
   </dialog>
 
   <dialog id="admin" class="modal">
-    <form id="admin-form">
+    <form id="admin-form" method="dialog" autocomplete="on">
       <div class="modal-head"><div><p class="eyebrow">OWNER ACCESS</p><h2>관리자 연결</h2></div><button type="button" id="admin-close" class="close" aria-label="닫기">×</button></div>
       <p class="muted hint">이 저장소에 <b>Contents: Read and write</b> 권한이 있는 GitHub Fine-grained PAT를 입력하세요. 토큰은 브라우저 메모리에만 보관하고 새로고침 시 지워집니다.</p>
-      <label>GitHub 토큰<input id="token" type="password" required autocomplete="off" placeholder="github_pat_..."></label>
+      <label for="admin-username">GitHub 사용자명<input id="admin-username" name="username" type="text" value="hyeonwoo-hyu" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label for="token">GitHub 토큰<input id="token" name="password" type="password" required autocomplete="current-password" autocapitalize="none" spellcheck="false" aria-describedby="token-help" placeholder="github_pat_..."></label>
+      <p id="token-help" class="caption">Safari의 암호 자동완성을 선택하거나 암호 앱에서 PAT를 복사해 붙여넣으세요. 암호 앱에는 이 사이트(hyeonwoo-hyu.github.io)의 사용자명과 PAT를 저장합니다. 사이트는 토큰을 영구 저장하지 않습니다.</p>
       <p class="error" id="admin-error" role="alert" hidden></p>
       <button class="primary wide" type="submit" id="connect">연결하기</button>
       <button class="secondary wide" type="button" id="disconnect" hidden>연결 해제</button>
@@ -106,5 +108,6 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
+
 
 
