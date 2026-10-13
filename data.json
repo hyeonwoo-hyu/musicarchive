@@ -682,5 +682,23 @@
     "rating": 8.5,
     "review": "1. 사토시는 이걸 어떻게 라이브로 부르는가\n2. 리듬감이 지림. 엄청 빠른 곡이 아닌데도.\n3. 밴드 사운드까지 더해지니 너무 맛있음",
     "updatedAt": "2026-10-13T11:18:43.751Z"
+  },
+  {
+    "type": "track",
+    "id": 1887793931,
+    "title": "Stardust",
+    "originalTitle": "スターダスト",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1887793929,
+    "collectionTitle": "スターダスト - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9b/a1/75/9ba175fa-c71e-3bd1-decc-a47254093484/20609.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%80%E3%82%B9%E3%83%88/1887793929?i=1887793931&l=en&uo=4",
+    "country": "DE",
+    "year": "2026",
+    "rating": 9,
+    "review": "레전드 공간감. 히게단 내한곡들중 1,2위를 다툰다고 봄. 음원으로도 공간감이 레전드인데 현장 사운드+떼창까지 하면 레전드로 지림",
+    "updatedAt": "2026-10-13T11:20:04.550Z"
   }
 ]
