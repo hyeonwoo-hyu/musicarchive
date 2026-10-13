@@ -646,5 +646,23 @@
     "rating": 8,
     "review": "2026년 여름이 생각나는 노래. 새장을 벗어나는 새의 가사를 보고 나니 더 좋아짐.",
     "updatedAt": "2026-10-13T11:16:13.422Z"
+  },
+  {
+    "type": "track",
+    "id": 1437217546,
+    "title": "Stand By You",
+    "originalTitle": "Stand By You",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1437217545,
+    "collectionTitle": "Stand By You EP",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/71/0b/14/710b1416-297e-32df-12da-1ab7021c58a1/PCCA_04717.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/stand-by-you/1437217545?i=1437217546&l=en&uo=4",
+    "country": "DE",
+    "year": "2018",
+    "rating": 8,
+    "review": "그때까지만 해도 히게단 곡들중 대중적으로 엄청 알려진 곡까지는 아니었었는데 군대에서 듣고 꽂힘. 라이브로 떼창까지 하니 지렸음",
+    "updatedAt": "2026-10-13T11:17:12.703Z"
   }
 ]
