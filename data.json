@@ -574,5 +574,23 @@
     "rating": 8,
     "review": "도도케!!!!!",
     "updatedAt": "2026-10-13T11:12:32.526Z"
+  },
+  {
+    "type": "track",
+    "id": 1707022856,
+    "title": "Tokyo Flash",
+    "originalTitle": "Tokyo Flash",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707022846,
+    "collectionTitle": "Tokyo Flash - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/2c/58/cd/2c58cdca-dcda-e51d-76bd-2be275946304/197189888113.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/tokyo-flash/1707022846?i=1707022856&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 7,
+    "review": "바운디를 처음 접한 곡. 곡 스타일이 완전 내 취향은 아닌데도 개사기코드+박자감 등에서 확실히 찰짐.",
+    "updatedAt": "2026-10-13T11:12:58.998Z"
   }
 ]
