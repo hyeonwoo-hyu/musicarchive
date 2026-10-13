@@ -160,5 +160,23 @@
     "rating": 7,
     "review": "",
     "updatedAt": "2026-10-13T04:30:08.131Z"
+  },
+  {
+    "type": "track",
+    "id": 1707022844,
+    "title": "Fukakouryoku",
+    "originalTitle": "Fukakouryoku",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707022840,
+    "collectionTitle": "Fukakouryoku - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/1f/f6/fa/1ff6fab6-d782-aa5b-1e46-8e9c797c8c6e/197189871658.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/fukakouryoku/1707022840?i=1707022844&l=en&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 7.5,
+    "review": "",
+    "updatedAt": "2026-10-13T04:30:15.110Z"
   }
 ]
