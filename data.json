@@ -214,5 +214,23 @@
     "rating": 7,
     "review": "군대에서 운동하면서 많이 들은 노래. 무난쵸\n뮤비가 재밌음 이건 ㅋㅋ 바운디 직접 나와서 액션함 ㅋㅋㅋ",
     "updatedAt": "2026-10-13T05:10:40.266Z"
+  },
+  {
+    "type": "track",
+    "id": 1771366342,
+    "title": "風神",
+    "originalTitle": "風神",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1771366340,
+    "collectionTitle": "風神 - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0b/4b/ad/0b4bad05-20fa-8e6e-9528-aa0a9fe44722/4547366712674.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E9%A2%A8%E7%A5%9E/1771366340?i=1771366342&l=en&uo=4",
+    "country": "DE",
+    "year": "2024",
+    "rating": 8.5,
+    "review": "정말 처음에 들었을때는 좀 안 맞는다 라고 생각이 들 정도로 딱 들어오는 곡이 아니었는데 가사를 알게되고 듣다보니 정말 좋은 곡임. 바운디 인터뷰 : \"누구나 어쩌면 바람을 두르고 있고, 사람과 사람이 마주할 때 그 바람으로 인해 생기는 생채기는 그저 아프기만 한 것이 아니라, 온기가 담긴 따뜻한 아픔이기도 하다는 것을 노래한 곡입니다.\"",
+    "updatedAt": "2026-10-13T05:16:09.263Z"
   }
 ]
