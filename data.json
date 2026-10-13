@@ -610,5 +610,23 @@
     "rating": 7,
     "review": "기타 리프가 맛있음 따다다다따다다둔따라따따단~",
     "updatedAt": "2026-10-13T11:13:55.786Z"
+  },
+  {
+    "type": "track",
+    "id": 1717747959,
+    "title": "SOULSOUP",
+    "originalTitle": "SOULSOUP",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1717747958,
+    "collectionTitle": "SOULSOUP - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/e2/d4/e2/e2d4e2da-5f72-8846-bbb0-ad4e82b0b783/PCSP_05470_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/soulsoup/1717747958?i=1717747959&l=en&uo=4",
+    "country": "DE",
+    "year": "2023",
+    "rating": 8,
+    "review": "2025년 겨울에 갑자기 꽂혀서 많이 들었는데, 브라스가 개지리는곡",
+    "updatedAt": "2026-10-13T11:14:34.169Z"
   }
 ]
