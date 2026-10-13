@@ -448,5 +448,23 @@
     "rating": 9,
     "review": "2025년 겨울 달리기에는 추운 날씨였지만 이 노래를 듣고 연병장에 나가서 숨이 안 쉬어질때까지 달렸다",
     "updatedAt": "2026-10-13T10:36:56.067Z"
+  },
+  {
+    "type": "track",
+    "id": 1563683060,
+    "title": "Cry Baby",
+    "originalTitle": "Cry Baby",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1563683059,
+    "collectionTitle": "Cry Baby - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e5/06/f2/e506f2a5-ebde-dd12-b347-7cf322d40644/PCSP_03508_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/cry-baby/1563683059?i=1563683060&uo=4",
+    "country": "DE",
+    "year": "2021",
+    "rating": 7.5,
+    "review": "레전드 불법 골전도이어폰으로 많이 들은 노래",
+    "updatedAt": "2026-10-13T11:03:40.686Z"
   }
 ]
