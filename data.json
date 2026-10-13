@@ -700,5 +700,23 @@
     "rating": 9,
     "review": "레전드 공간감. 히게단 내한곡들중 1,2위를 다툰다고 봄. 음원으로도 공간감이 레전드인데 현장 사운드+떼창까지 하면 레전드로 지림",
     "updatedAt": "2026-10-13T11:20:04.550Z"
+  },
+  {
+    "type": "track",
+    "id": 1045474471,
+    "title": "Sweet Tweet",
+    "originalTitle": "Sweet Tweet",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1045474467,
+    "collectionTitle": "Love To Peace Ha Kimi No Naka",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music6/v4/23/fd/fd/23fdfdcf-1b75-2a99-5ef8-8c4d3f5f7979/LACD-0251_jkt.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/sweet-tweet/1045474467?i=1045474471&l=en&uo=4",
+    "country": "DE",
+    "year": "2015",
+    "rating": 8.5,
+    "review": "도입부 GOAT 너무 신남. 키보드+킥만으로도 이렇게 할 수 있구나 싶음. 거기서 이미 사로잡혔는데 거기에 베이스 들어가고 기타까지 들어가니 기모찌함",
+    "updatedAt": "2026-10-13T11:22:03.290Z"
   }
 ]
