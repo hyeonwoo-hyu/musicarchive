@@ -232,5 +232,23 @@
     "rating": 8.5,
     "review": "정말 처음에 들었을때는 좀 안 맞는다 라고 생각이 들 정도로 딱 들어오는 곡이 아니었는데 가사를 알게되고 듣다보니 정말 좋은 곡임. 바운디 인터뷰 : \"누구나 어쩌면 바람을 두르고 있고, 사람과 사람이 마주할 때 그 바람으로 인해 생기는 생채기는 그저 아프기만 한 것이 아니라, 온기가 담긴 따뜻한 아픔이기도 하다는 것을 노래한 곡입니다.\"",
     "updatedAt": "2026-10-13T05:16:09.263Z"
+  },
+  {
+    "type": "track",
+    "id": 1721130445,
+    "title": "タイムパラドックス",
+    "originalTitle": "タイムパラドックス",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1721130439,
+    "collectionTitle": "タイムパラドックス - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/3b/67/cf/3b67cfba-0b55-3bdc-1d5f-e26c9071c2f7/4547366661972.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E3%82%BF%E3%82%A4%E3%83%A0%E3%83%91%E3%83%A9%E3%83%89%E3%83%83%E3%82%AF%E3%82%B9/1721130439?i=1721130445&l=en&uo=4",
+    "country": "DE",
+    "year": "2024",
+    "rating": 5.5,
+    "review": "잔잔배리곡",
+    "updatedAt": "2026-10-13T05:16:30.614Z"
   }
 ]
