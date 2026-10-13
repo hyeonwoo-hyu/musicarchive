@@ -524,38 +524,36 @@ function updateRating() {
   $("rating-value").value = `${score.toFixed(1)} / 10`;
   $("rating").setAttribute("aria-valuetext", `${score.toFixed(1)}점 / 10점`);
   $("rating").style.setProperty("--rating-progress", `${(score - 0.5) / 9.5 * 100}%`);
-  $("rating-minus").disabled = state.saving || score <= 0.5;
-  $("rating-plus").disabled = state.saving || score >= 10;
 }
 
 function openEditor(song) {
   if (!appleID(song.id)) { alertUser("Apple 음악 ID를 확인할 수 없습니다.", true); return; }
   const existing = savedRecord(song);
   state.editing = { ...(existing || song) }; state.original = existing ? JSON.stringify(existing) : null;
-  $("editor-title").textContent = `${existing ? "평가 수정" : "새 평가"} · ${song.type === "album" ? "앨범" : "곡"}`;
-  $("editor-subtitle").textContent = `${state.editing.title} — ${state.editing.artist}`;
+  $("editor-title").textContent = existing ? "수정" : "평가";
+  $("delete-review").hidden = !existing;
   $("display-title").value = state.editing.title;
   $("original-title").textContent = state.editing.originalTitle;
   $("rating").value = existing ? String(existing.rating) : "5"; updateRating();
   $("review").value = existing?.review || ""; errorIn("editor-error", "");
   $("editor").showModal();
 }
-async function saveReview(event) {
+async function saveReview(event, remove = false) {
   event?.preventDefault();
-  if (!state.editing || state.saving) return;
+  if (!state.editing || state.saving || (remove && !state.original)) return;
   const score = Number($("rating").value);
-  if (!$("rating").value || !Number.isFinite(score) || score < 0.5 || score > 10 || score * 2 % 1 !== 0) {
+  if (!remove && (!$("rating").value || !Number.isFinite(score) || score < 0.5 || score > 10 || score * 2 % 1 !== 0)) {
     errorIn("editor-error", "평점은 0.5~10점 사이에서 선택해 주세요.");
     return;
   }
   if (!state.token) {
-    pendingSave = recordKey(state.editing);
+    pendingSave = { key: recordKey(state.editing), remove };
     $("admin").showModal();
-    alertUser("관리자 연결 후 작성한 평가를 저장합니다.");
+    alertUser(remove ? "관리자 연결 후 이 평가를 삭제합니다." : "관리자 연결 후 작성한 평가를 저장합니다.");
     return;
   }
   pendingSave = null;
-  const button = $("save");
+  const button = remove ? $("delete-review") : $("save");
   state.saving = true;
   updateRating();
   $("editor-close").disabled = true;
@@ -563,31 +561,39 @@ async function saveReview(event) {
   $("review").disabled = true;
   $("display-title").disabled = true;
   $("restore-title").disabled = true;
-  button.disabled = true;
-  button.textContent = "저장 중…";
+  $("save").disabled = true; $("delete-review").disabled = true;
+  button.textContent = remove ? "삭제 중…" : "저장 중…";
   errorIn("editor-error", "");
   try {
     const { songs, sha } = await readGitHub(state.token);
     const index = songs.findIndex(x => recordKey(x) === recordKey(state.editing));
     const latest = index >= 0 ? songs[index] : null;
+    if (remove && !latest) throw new Error("이 평가는 이미 삭제되었습니다. 새로고침해 주세요.");
     if ((latest ? JSON.stringify(latest) : null) !== state.original) {
       throw new Error("다른 기기에서 이 평가가 변경되었습니다. 감상평을 복사한 뒤 새로고침해 주세요.");
     }
-    const record = {
-      ...state.editing,
-      type: recordType(state.editing),
-      id: state.editing.id,
-      title: $("display-title").value.trim() || state.editing.originalTitle,
-      originalTitle: state.editing.originalTitle,
-      artist: state.editing.artist,
-      year: state.editing.year || "",
-      rating: score,
-      review: $("review").value.trim(),
-      updatedAt: new Date().toISOString()
-    };
     const updated = songs.slice();
-    if (index >= 0) updated[index] = record;
-    else updated.push(record);
+    let message;
+    if (remove) {
+      updated.splice(index, 1);
+      message = `Delete rating: ${latest.title}`;
+    } else {
+      const record = {
+        ...state.editing,
+        type: recordType(state.editing),
+        id: state.editing.id,
+        title: $("display-title").value.trim() || state.editing.originalTitle,
+        originalTitle: state.editing.originalTitle,
+        artist: state.editing.artist,
+        year: state.editing.year || "",
+        rating: score,
+        review: $("review").value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      if (index >= 0) updated[index] = record;
+      else updated.push(record);
+      message = `${index >= 0 ? "Update" : "Add"} rating: ${record.title}`;
+    }
     validateSongs(updated);
     const response = await fetch(FILE_API, {
       method: "PUT",
@@ -598,7 +604,7 @@ async function saveReview(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        message: `${index >= 0 ? "Update" : "Add"} rating: ${record.title}`,
+        message,
         content: encodeBase64(JSON.stringify(updated, null, 2) + "\n"),
         sha,
         branch: "main"
@@ -607,13 +613,13 @@ async function saveReview(event) {
     if (!response.ok) {
       if (response.status === 409) throw new Error("저장 충돌이 발생했습니다. 작성 내용은 유지되어 있으니 다시 시도해 주세요.");
       if (response.status === 401 || response.status === 403) throw new Error(`쓰기 권한이 없습니다 (${response.status}). 토큰 권한을 확인해 주세요.`);
-      throw new Error(`저장에 실패했습니다 (${response.status}).`);
+      throw new Error(`${remove ? "삭제" : "저장"}에 실패했습니다 (${response.status}).`);
     }
     state.songs = updated;
     renderLibrary();
     $("editor").close();
     refreshSavedStatuses();
-    alertUser("GitHub에 저장했습니다.");
+    alertUser(remove ? "평가를 삭제했습니다." : "GitHub에 저장했습니다.");
   } catch (error) {
     errorIn("editor-error", error.message);
   } finally {
@@ -624,8 +630,8 @@ async function saveReview(event) {
     $("review").disabled = false;
     $("display-title").disabled = false;
     $("restore-title").disabled = false;
-    button.disabled = false;
-    button.textContent = "GitHub에 저장";
+    $("save").disabled = false; $("delete-review").disabled = false;
+    button.textContent = remove ? "삭제" : "GitHub에 저장";
   }
 }
 
@@ -654,7 +660,7 @@ async function connect(event) {
     $("admin-button").textContent = "관리자 연결됨";
     $("disconnect").hidden = false;
     alertUser("GitHub 조회 확인 완료. 쓰기 권한은 실제 저장 시 확인됩니다.");
-    if (resume && state.editing && recordKey(state.editing) === resume && $("editor").open) await saveReview();
+    if (resume && state.editing && recordKey(state.editing) === resume.key && $("editor").open) await saveReview(null, resume.remove);
   } catch (error) {
     if (!controller.signal.aborted && $("admin").open && authAttempt === controller) errorIn("admin-error", `연결 실패: ${error.message}`);
   } finally {
@@ -674,13 +680,6 @@ function backup() {
 }
 
 $("rating").addEventListener("input", updateRating);
-for (const [id, delta] of [["rating-minus", -0.5], ["rating-plus", 0.5]]) {
-  $(id).addEventListener("click", () => {
-    if (state.saving) return;
-    $("rating").value = String(Math.max(0.5, Math.min(10, Number($("rating").value) + delta)));
-    updateRating();
-  });
-}
 updateRating();
 $("music-query").addEventListener("input", () => {
   $("search-submit").disabled = false;
@@ -731,6 +730,10 @@ $("library-query").addEventListener("input", renderLibrary);
 $("sort").addEventListener("change", renderLibrary);
 $("search-form").addEventListener("submit", searchMusic);
 $("editor-form").addEventListener("submit", saveReview);
+$("delete-review").addEventListener("click", () => {
+  if (!state.original || state.saving) return;
+  if (confirm("이 평가를 삭제할까요?")) saveReview(null, true);
+});
 $("editor-close").addEventListener("click", () => { pendingSave = null; $("editor").close(); });
 $("editor").addEventListener("cancel", event => { if (state.saving) event.preventDefault(); });
 $("admin-button").addEventListener("click", () => $("admin").showModal());

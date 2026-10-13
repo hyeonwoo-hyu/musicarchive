@@ -8,8 +8,8 @@
   <title>MUSIC ARCHIVE</title>
   <link rel="preconnect" href="https://itunes.apple.com" crossorigin>
   <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
-  <link rel="stylesheet" href="./style.css?v=20261013-catalog-1">
-  <script src="./app.js?v=20261013-catalog-1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261013-review-1">
+  <script src="./app.js?v=20261013-review-1" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -104,21 +104,21 @@
 
   <footer class="container footer">음악 정보와 커버: Apple iTunes Search API · <a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener noreferrer">API 안내</a></footer>
 
-  <dialog id="editor" class="modal">
+  <dialog id="editor" class="modal" aria-labelledby="editor-title">
     <form id="editor-form">
-      <div class="modal-head"><div><p class="eyebrow">MY RECORD</p><h2 id="editor-title">곡 평가</h2><p class="muted hint" id="editor-subtitle"></p></div><button type="button" id="editor-close" class="close" aria-label="닫기">×</button></div>
+      <div class="modal-head"><h2 id="editor-title">평가</h2><button type="button" id="editor-close" class="close" aria-label="닫기">×</button></div>
       <label for="display-title">표시 제목<input id="display-title" type="text" maxlength="300" aria-describedby="title-help" autocomplete="off"></label>
       <div class="title-original"><p id="title-help" class="caption">원본 제목: <span id="original-title"></span></p><button id="restore-title" type="button" class="text-button">원본으로 복원</button></div>
       <div class="rating-field">
         <label for="rating">나의 평점</label>
         <output id="rating-value" for="rating" class="rating-value">5.0 / 10</output>
-        <input id="rating" type="range" min="0.5" max="10" step="0.5" value="5" aria-describedby="rating-help">
-        <div class="rating-controls"><button id="rating-minus" type="button" class="secondary small" aria-label="평점 0.5점 낮추기">− 0.5</button><span id="rating-help" class="muted hint">0.5점 단위 · 0.5~10점</span><button id="rating-plus" type="button" class="secondary small" aria-label="평점 0.5점 높이기">+ 0.5</button></div>
+        <input id="rating" type="range" min="0.5" max="10" step="0.5" value="5">
       </div>
-      <label>감상평 <span class="muted">(선택)</span><textarea id="review" rows="5" maxlength="5000" placeholder="왜 좋았는지, 무엇이 인상적이었는지 기록해 보세요."></textarea></label>
+      <label>감상평<textarea id="review" rows="5" maxlength="5000" placeholder="왜 좋았는지, 무엇이 인상적이었는지 기록해 보세요."></textarea></label>
       <p class="error" id="editor-error" role="alert" hidden></p>
       <button class="primary wide" id="save" type="submit">GitHub에 저장</button>
       <p class="caption">평가와 감상평은 공개 GitHub 저장소에 기록됩니다.</p>
+      <button id="delete-review" class="delete-review" type="button" hidden>삭제</button>
     </form>
   </dialog>
 
