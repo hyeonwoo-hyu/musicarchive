@@ -1,13 +1,11 @@
 # My Music Archive
 
-Apple iTunes Search API에서 음악을 검색하고 곡·발매작에 평점과 감상평을 남기는 개인 아카이브입니다.
+ 음악을 검색하고 곡·발매작에 평점과 감상평을 남기는 개인 아카이브입니다.
 
 - HTML, CSS, Vanilla JavaScript / GitHub Pages. npm, 빌드, 백엔드는 없습니다.
 - DE 카탈로그가 기본이고 JP·US를 선택할 수 있습니다. 선택한 국가에서만 검색합니다.
 - 아티스트·발매작·곡 검색은 최대 100개를 조회한 뒤 더보기로 나눠 표시합니다. 전체 카탈로그의 무제한 페이지네이션이나 인기순은 제공하지 않습니다.
 - 아티스트를 선택하면 발매작, 발매작을 선택하면 디스크·트랙 순서의 수록곡을 봅니다.
-- 곡과 발매작을 독립적으로 평가합니다. 표시 제목을 수정해도 Apple ID와 원본 제목은 유지됩니다.
-- Apple 이미지 URL을 직접 사용하며 각 커버에 Apple Music 원본 링크와 공식 배지를 제공합니다. API가 제공하지 않는 EP/Single 구분을 추정하지 않습니다.
 
 ## 기록과 인증
 
@@ -19,7 +17,7 @@ GitHub Contents API에서 최신 data.json과 SHA를 조회하고 같은 평가�
 
 ## 데이터와 요청
 
-각 기록은 type(track/album), 숫자 Apple id, title, originalTitle, artist, artistId, collectionId, collectionTitle, artworkUrl, storeUrl, country, year, rating, review, updatedAt를 갖습니다. 같은 종류와 Apple ID는 한 번만 등록합니다.
+각 기록은 type(track/album), 숫자 Apple id, title, originalTitle, artist, artistId, collectionId, collectionTitle, artworkUrl, storeUrl, country, year, rating, review, updatedAt를 갖습니다. 
 
 API는 일반 fetch를 먼저 사용합니다. CORS/네트워크 실패 시 테스트 페이지와 같은 allow-scripts 전용 sandbox iframe에서 JSONP를 실행합니다. 외부 스크립트는 관리자 페이지의 DOM·PAT에 접근할 수 없습니다. 물리 요청은 분당 최대 18회로 제한하고 같은 조회는 세션에서 재사용합니다.
 
