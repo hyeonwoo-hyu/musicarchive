@@ -8,8 +8,8 @@
   <title>My Music Archive</title>
   <link rel="preconnect" href="https://itunes.apple.com" crossorigin>
   <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
-  <link rel="stylesheet" href="./style.css?v=20261013-itunes">
-  <script src="./app.js?v=20261013-itunes-2" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261013-compact-1">
+  <script src="./app.js?v=20261013-compact-1" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -36,9 +36,10 @@
 
     <section id="library-panel" aria-labelledby="library-tab">
       <div class="stats">
-        <div class="stat"><strong id="song-count">0</strong><span id="record-count-label">기록한 곡 · 발매작</span></div>
-        <div class="stat"><strong id="average-score">—</strong><span id="average-label">곡 평균 · 발매작 평균</span></div>
-        <div class="stat"><strong id="artist-count">0</strong><span>아티스트</span></div>
+        <div class="stat"><strong id="song-count">0</strong><span>곡</span></div>
+        <div class="stat"><strong id="album-count">0</strong><span>발매작</span></div>
+        <div class="stat"><strong id="average-score">—</strong><span>곡 평균</span></div>
+        <div class="stat"><strong id="album-average">—</strong><span>발매작 평균</span></div>
       </div>
 
       <div class="type-filters" id="library-types" aria-label="기록 종류">
@@ -64,18 +65,21 @@
     </section>
 
     <section id="search-panel" aria-labelledby="search-tab" hidden>
-      <h2>음악 찾기</h2>
-      <p class="muted hint">음악을 검색해 곡과 발매작에 평가를 남겨 보세요. 아티스트를 선택하면 발매작을 볼 수 있습니다.</p>
       <form id="search-form" class="search-form">
         <label><span class="sr-only">곡명, 앨범명, 아티스트 검색</span><input id="music-query" type="search" placeholder="곡명, 앨범명, 아티스트 검색" autocomplete="off" required maxlength="200"></label>
         <label><span class="sr-only">스토어 카탈로그</span><select id="search-country" aria-describedby="country-help"><option value="DE">독일 DE</option><option value="JP">일본 JP</option><option value="US">미국 US</option></select></label>
         <button type="submit" class="primary" id="search-submit">검색</button>
       </form>
-      <p id="country-help" class="caption">선택한 국가의 스토어 카탈로그에서만 검색합니다. 음악의 국적을 뜻하지 않으며 제목 표기는 국가마다 다를 수 있습니다.</p>
+      <p id="country-help" class="caption">선택한 스토어에서 검색 · 제목 표기는 국가마다 다를 수 있습니다.</p>
+      <nav id="search-types" class="type-filters search-types" aria-label="검색 결과 종류" hidden>
+        <button type="button" class="active" data-entity="all" aria-pressed="true">전체</button>
+        <button type="button" data-entity="song" aria-pressed="false">곡</button>
+        <button type="button" data-entity="album" aria-pressed="false">발매작</button>
+        <button type="button" data-entity="musicArtist" aria-pressed="false">아티스트</button>
+      </nav>
       <div class="section-header"><h2>검색 결과</h2><span class="muted hint" id="search-count"></span></div>
       <div id="search-context" hidden></div>
       <div class="search-results" id="results" aria-live="polite"><div class="empty">곡명, 앨범명 또는 아티스트를 검색해 보세요.</div></div>
-      <p class="caption">Apple 카탈로그의 곡·발매작 정보를 표시합니다. 조회한 결과 안에서 더보기를 지원합니다.</p>
     </section>
   </main>
 
@@ -114,9 +118,3 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
-
-
-
-
-
-
