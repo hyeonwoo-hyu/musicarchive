@@ -142,5 +142,23 @@
     "rating": 7.5,
     "review": "",
     "updatedAt": "2026-10-13T04:25:38.205Z"
+  },
+  {
+    "type": "track",
+    "id": 1707023149,
+    "title": "Tokyo Flash",
+    "originalTitle": "Tokyo Flash",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707022764,
+    "collectionTitle": "strobo",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7e/04/0e/7e040ed4-e66e-3f00-6678-acea145f5f34/197189864599.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/tokyo-flash/1707022764?i=1707023149&l=en&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 7,
+    "review": "",
+    "updatedAt": "2026-10-13T04:30:08.131Z"
   }
 ]
