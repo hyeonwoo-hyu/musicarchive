@@ -88,5 +88,23 @@
     "rating": 8.5,
     "review": "",
     "updatedAt": "2026-10-13T04:23:48.475Z"
+  },
+  {
+    "type": "track",
+    "id": 1890060756,
+    "title": "飛ぶ時",
+    "originalTitle": "飛ぶ時",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1890060754,
+    "collectionTitle": "飛ぶ時 / 飛ぼうよ - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/40/6f/fe/406ffe67-b650-6f46-5aa6-c6dc947e23b5/4547366818246.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E9%A3%9B%E3%81%B6%E6%99%82/1890060754?i=1890060756&l=en&uo=4",
+    "country": "DE",
+    "year": "2026",
+    "rating": 9,
+    "review": "",
+    "updatedAt": "2026-10-13T04:23:55.939Z"
   }
 ]
