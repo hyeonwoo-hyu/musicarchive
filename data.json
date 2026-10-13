@@ -592,5 +592,23 @@
     "rating": 7,
     "review": "바운디를 처음 접한 곡. 곡 스타일이 완전 내 취향은 아닌데도 개사기코드+박자감 등에서 확실히 찰짐.",
     "updatedAt": "2026-10-13T11:12:58.998Z"
+  },
+  {
+    "type": "track",
+    "id": 1681217026,
+    "title": "TATTOO",
+    "originalTitle": "TATTOO",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1681216905,
+    "collectionTitle": "TATTOO - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/a1/c5/24/a1c52439-a3ba-8c73-fa1b-85dfaa18cca4/PCSP_04999_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/tattoo/1681216905?i=1681217026&l=en&uo=4",
+    "country": "DE",
+    "year": "2023",
+    "rating": 7,
+    "review": "기타 리프가 맛있음 따다다다따다다둔따라따따단~",
+    "updatedAt": "2026-10-13T11:13:55.786Z"
   }
 ]
