@@ -24,7 +24,7 @@ let serial = 0;
 const framePending = new Map();
 const categories = [
   { entity: "musicArtist", label: "아티스트", size: 8, initial: 2 },
-  { entity: "album", label: "발매작", size: 12, initial: 5 },
+  { entity: "album", label: "앨범", size: 12, initial: 5 },
   { entity: "song", label: "곡", size: 20, initial: 8 }
 ];
 let libraryType = "all";
@@ -162,7 +162,7 @@ function songRow(song, fromSearch = false, trackList = false) {
   if (!trackList) button.append(artwork(song));
   const info = el("span", "track-info");
   const detail = [song.artist, !trackList && song.type === "track" ? song.collectionTitle : "",
-    !trackList ? song.year : "", !fromSearch ? (song.type === "album" ? "발매작" : "곡") : ""].filter(Boolean).join(" · ");
+    !trackList ? song.year : "", !fromSearch ? (song.type === "album" ? "앨범" : "곡") : ""].filter(Boolean).join(" · ");
   info.append(el("span", "track-title", song.title), el("span", "track-sub", detail));
   button.append(info);
   const status = el("span", fromSearch ? "add" : "score");
@@ -195,13 +195,19 @@ function renderLibrary() {
   else for (const song of items) list.append(songRow(song));
 }
 
-function showTab(which) {
-  const library = which === "library";
-  document.body.classList.toggle("search-active", !library);
-  $("library-panel").hidden = !library; $("search-panel").hidden = library;
-  for (const [id, active] of [["library-tab", library], ["search-tab", !library]]) {
-    $(id).classList.toggle("active", active); $(id).setAttribute("aria-selected", String(active));
-  }
+let libraryScrollY = 0;
+
+function openSearchPanel() {
+  if ($("search-panel").open) return;
+  libraryScrollY = window.scrollY;
+  document.body.style.top = `-${libraryScrollY}px`;
+  document.body.classList.add("panel-open");
+  $("search-panel").showModal();
+  $("search-close").focus({ preventScroll: true });
+}
+
+function closeSearchPanel() {
+  $("search-panel").close();
 }
 
 function waitForCall(ms, signal) {
@@ -327,15 +333,16 @@ function dedup(items, entity) {
 
 function makeView(kind, name, country, push = false) {
   searchRun?.controller.abort();
-  if (push && searchRun) { searchRun.scrollY = window.scrollY; viewStack.push(searchRun); } else if (!push) viewStack = [];
+  if (push && searchRun) { searchRun.scrollTop = $("search-scroll").scrollTop; viewStack.push(searchRun); } else if (!push) viewStack = [];
   const view = { kind, name, country, controller: new AbortController(), root: el("div", "search-results"), context: el("div"), sections: [], filter: "all", pending: true };
-  searchRun = view; showTab("search"); mountView(view);
+  searchRun = view; openSearchPanel(); mountView(view);
   return view;
 }
 
 function mountView(view) {
   $("search-context").replaceChildren(view.context); $("search-context").hidden = !view.context.childNodes.length;
   $("results").replaceChildren(view.root);
+  $("search-scroll").scrollTop = 0;
   applySearchFilter(view); refreshSearchCount(view); refreshSavedStatuses();
 }
 
@@ -346,20 +353,20 @@ function addBack(view) {
     searchRun?.controller.abort();
     searchRun = viewStack.pop() || null;
     if (searchRun) { searchRun.controller = new AbortController(); mountView(searchRun);
-      const previous = searchRun; requestAnimationFrame(() => window.scrollTo(0, previous.scrollY || 0)); }
+      const previous = searchRun; requestAnimationFrame(() => $("search-scroll").scrollTo(0, previous.scrollTop || 0)); }
     else {
       $("search-context").replaceChildren(); $("search-context").hidden = true;
       $("results").replaceChildren(el("div", "empty", "곡명, 앨범명 또는 아티스트를 검색해 보세요."));
-      $("search-count").textContent = "";
+      $("search-count").textContent = ""; $("search-types").hidden = true;
     }
-    if (view.returnLibrary) showTab("library");
+    if (view.returnLibrary) closeSearchPanel();
   });
   view.context.append(button);
 }
 
 function refreshSearchCount(view) {
   if (searchRun !== view) return;
-  $("search-count").textContent = `${view.country} 카탈로그 · ${view.kind === "album" ? "발매작 상세" : `${view.sections.filter(page => !page.section.hidden).reduce((n, page) => n + page.shown, 0)}개 표시`}${view.pending ? " · 조회 중…" : ""}`;
+  $("search-count").textContent = `${view.country} 카탈로그 · ${view.kind === "album" ? "앨범 상세" : `${view.sections.filter(page => !page.section.hidden).reduce((n, page) => n + page.shown, 0)}개 표시`}${view.pending ? " · 조회 중…" : ""}`;
 }
 
 function artistRow(item, country) {
@@ -430,8 +437,8 @@ function createPage(view, category, request) {
 async function startSearch(query) {
   const country = $("search-country").value;
   if (searchRun?.kind === "search" && searchRun.pending && searchRun.name === query && searchRun.country === country) return;
+  if (!query) return;
   const view = makeView("search", query, country);
-  if (!query) { view.root.append(el("div", "empty", "곡명, 앨범명 또는 아티스트를 검색해 보세요.")); view.pending = false; refreshSearchCount(view); return; }
   const pages = categories.map(category => createPage(view, category, () => api("/search", {
     term: query, country, media: "music", entity: category.entity, limit: 100, lang: country === "JP" ? "ja_jp" : "en_us"
   }, view)));
@@ -448,7 +455,7 @@ async function openArtist(item, country) {
 }
 
 async function openAlbum(album) {
-  const returnLibrary = !$("library-panel").hidden;
+  const returnLibrary = !$("search-panel").open;
   const view = makeView("album", album.originalTitle, album.country, Boolean(searchRun)); view.returnLibrary = returnLibrary;
   addBack(view);
   const hero = el("div", "album-hero"); hero.append(artwork(album, true));
@@ -456,7 +463,7 @@ async function openAlbum(album) {
   info.append(el("h2", "", savedRecord(album)?.title || album.title), el("p", "muted", album.artist), el("p", "hint", [album.year, `${album.country} 카탈로그`].filter(Boolean).join(" · ")));
   const link = appleLink(album.storeUrl); if (link) info.append(link);
   hero.append(info); view.context.append(hero);
-  const rate = el("button", "primary", "발매작 평가하기"); rate.type = "button";
+  const rate = el("button", "primary", "앨범 평가하기"); rate.type = "button";
   rate.dataset.recordKey = recordKey(album); rate.dataset.albumDetail = "false";
   rate.addEventListener("click", () => openEditor(album)); view.context.append(rate);
   const tracks = el("div", "album-tracks"); tracks.id = "album-tracks"; view.root.append(tracks);
@@ -499,7 +506,7 @@ function refreshSavedStatuses() {
         node.textContent = record ? `${record.rating.toFixed(1)} ★` : node.dataset.trackList === "true" ? "평가" : "›";
         continue;
       }
-      node.textContent = record ? `${record.rating.toFixed(1)} ★ · 수정` : node.dataset.albumDetail === "true" ? "상세 · 평가" : node.dataset.recordKey.startsWith("album:") ? "발매작 평가하기" : "평가하기";
+      node.textContent = record ? `${record.rating.toFixed(1)} ★ · 수정` : node.dataset.albumDetail === "true" ? "상세 · 평가" : node.dataset.recordKey.startsWith("album:") ? "앨범 평가하기" : "평가하기";
     }
   }
 }
@@ -508,6 +515,7 @@ function searchMusic(event) {
   event.preventDefault();
   const query = $("music-query").value.trim();
   if (!query) { alertUser("검색어를 입력하세요.", true); return; }
+  $("music-query").blur();
   startSearch(query);
 }
 
@@ -524,7 +532,7 @@ function openEditor(song) {
   if (!appleID(song.id)) { alertUser("Apple 음악 ID를 확인할 수 없습니다.", true); return; }
   const existing = savedRecord(song);
   state.editing = { ...(existing || song) }; state.original = existing ? JSON.stringify(existing) : null;
-  $("editor-title").textContent = `${existing ? "평가 수정" : "새 평가"} · ${song.type === "album" ? "발매작" : "곡"}`;
+  $("editor-title").textContent = `${existing ? "평가 수정" : "새 평가"} · ${song.type === "album" ? "앨범" : "곡"}`;
   $("editor-subtitle").textContent = `${state.editing.title} — ${state.editing.artist}`;
   $("display-title").value = state.editing.title;
   $("original-title").textContent = state.editing.originalTitle;
@@ -678,8 +686,31 @@ $("music-query").addEventListener("input", () => {
   $("search-submit").disabled = false;
   $("search-submit").textContent = "검색";
 });
-$("library-tab").addEventListener("click", () => showTab("library"));
-$("search-tab").addEventListener("click", () => showTab("search"));
+$("new-music-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const query = $("new-music-query").value.trim();
+  if (!query) return;
+  $("new-music-query").blur(); $("music-query").value = query;
+  openSearchPanel();
+  if (searchRun?.kind !== "search" || searchRun.name !== query || searchRun.country !== $("search-country").value) startSearch(query);
+});
+$("search-close").addEventListener("click", closeSearchPanel);
+$("search-panel").addEventListener("close", () => {
+  $("new-music-query").value = $("music-query").value;
+  document.body.classList.remove("panel-open"); document.body.style.top = "";
+  window.scrollTo(0, libraryScrollY);
+});
+$("library-search-open").addEventListener("click", () => {
+  $("library-title").hidden = true; $("library-search-open").hidden = true;
+  $("library-search-open").setAttribute("aria-expanded", "true");
+  $("library-search").hidden = false; $("library-query").focus({ preventScroll: true });
+});
+$("library-search-close").addEventListener("click", () => {
+  $("library-query").value = ""; renderLibrary();
+  $("library-search").hidden = true; $("library-title").hidden = false;
+  $("library-search-open").hidden = false; $("library-search-open").setAttribute("aria-expanded", "false");
+  $("library-search-open").focus({ preventScroll: true });
+});
 for (const button of $("library-types").querySelectorAll("button")) {
   button.addEventListener("click", () => {
     libraryType = button.dataset.type;

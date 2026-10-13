@@ -5,53 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f8f9fb">
   <meta name="description" content="내가 좋아하는 음악을 평가하고 기록하는 개인 아카이브">
-  <title>My Music Archive</title>
+  <title>MUSIC ARCHIVE</title>
   <link rel="preconnect" href="https://itunes.apple.com" crossorigin>
   <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
-  <link rel="stylesheet" href="./style.css?v=20261013-compact-1">
-  <script src="./app.js?v=20261013-compact-1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261013-single-1">
+  <script src="./app.js?v=20261013-single-1" defer></script>
 </head>
 <body>
   <header class="topbar">
     <div class="container header">
-      <a class="brand" href="./" aria-label="My Music Archive 홈">
-        <span class="brand-icon" aria-hidden="true">♫</span>
-        <span>My Music <span class="brand-sub">ARCHIVE</span></span>
-      </a>
+      <a class="brand" href="./" aria-label="MUSIC ARCHIVE 홈">MUSIC ARCHIVE</a>
       <button class="secondary small" id="admin-button" type="button">관리자 연결</button>
     </div>
   </header>
 
   <main class="container">
-    <section class="intro">
-      <p class="eyebrow">PERSONAL MUSIC ARCHIVE</p>
-      <h1>내가 들은 음악, 나의 기록.</h1>
-      <p class="muted">곡을 찾고, 점수를 매기고, 감상을 남기는 공간.</p>
-    </section>
-
-    <nav class="tabs" aria-label="화면 선택">
-      <button type="button" class="tab active" id="library-tab" aria-controls="library-panel" aria-selected="true">내 라이브러리</button>
-      <button type="button" class="tab" id="search-tab" aria-controls="search-panel" aria-selected="false">음악 검색 · 추가</button>
-    </nav>
-
-    <section id="library-panel" aria-labelledby="library-tab">
+    <section id="library-panel" aria-labelledby="library-title">
+      <div class="library-heading">
+        <h1 id="library-title">내 라이브러리</h1>
+        <button id="library-search-open" type="button" class="icon-button" aria-label="내 기록 검색" aria-expanded="false" aria-controls="library-search">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+        </button>
+        <div id="library-search" class="library-search" hidden>
+          <label class="sr-only" for="library-query">내 기록 검색</label>
+          <input id="library-query" type="search" placeholder="내 기록에서 검색…" autocomplete="off">
+          <button id="library-search-close" type="button" class="icon-button" aria-label="내 기록 검색 닫기">×</button>
+        </div>
+      </div>
       <div class="stats">
         <div class="stat"><strong id="song-count">0</strong><span>곡</span></div>
-        <div class="stat"><strong id="album-count">0</strong><span>발매작</span></div>
+        <div class="stat"><strong id="album-count">0</strong><span>앨범</span></div>
         <div class="stat"><strong id="average-score">—</strong><span>곡 평균</span></div>
-        <div class="stat"><strong id="album-average">—</strong><span>발매작 평균</span></div>
+        <div class="stat"><strong id="album-average">—</strong><span>앨범 평균</span></div>
       </div>
 
-      <div class="type-filters" id="library-types" aria-label="기록 종류">
-        <button type="button" class="active" data-type="all" aria-pressed="true">전체</button>
-        <button type="button" data-type="track" aria-pressed="false">곡</button>
-        <button type="button" data-type="album" aria-pressed="false">앨범·EP·싱글</button>
-      </div>
-      <div class="filterbar">
-        <label class="field-with-icon"><span class="sr-only">내 음악 검색</span>
-          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
-          <input id="library-query" type="search" placeholder="제목 또는 아티스트 검색">
-        </label>
+      <div class="library-controls">
+        <div class="type-filters" id="library-types" aria-label="기록 종류">
+          <button type="button" class="active" data-type="all" aria-pressed="true">전체</button>
+          <button type="button" data-type="track" aria-pressed="false">곡</button>
+          <button type="button" data-type="album" aria-pressed="false">앨범</button>
+        </div>
         <label class="sr-only" for="sort">정렬 기준</label>
         <select id="sort">
           <option value="recent">최근 평가순</option>
@@ -64,9 +57,22 @@
       <div id="library-list" class="track-list" aria-live="polite"></div>
     </section>
 
-    <section id="search-panel" aria-labelledby="search-tab" hidden>
+  </main>
+
+  <aside id="music-dock" class="music-dock" aria-label="새 음악 검색">
+    <form id="new-music-form" class="container dock-form">
+      <label class="sr-only" for="new-music-query">새 음악 검색</label>
+      <input id="new-music-query" type="search" placeholder="새 음악 검색…" enterkeyhint="search" autocomplete="off" required maxlength="200">
+      <button class="primary" type="submit" aria-label="새 음악 검색 실행">↑</button>
+    </form>
+  </aside>
+
+  <dialog id="search-panel" class="search-panel" aria-labelledby="search-title">
+    <div class="panel-shell">
+      <div class="panel-toolbar">
+        <div class="panel-header"><h2 id="search-title">새 음악 검색</h2><button id="search-close" type="button" class="close" aria-label="검색 패널 닫기" autofocus>×</button></div>
       <form id="search-form" class="search-form">
-        <label><span class="sr-only">곡명, 앨범명, 아티스트 검색</span><input id="music-query" type="search" placeholder="곡명, 앨범명, 아티스트 검색" autocomplete="off" required maxlength="200"></label>
+        <label><span class="sr-only">곡명, 앨범명, 아티스트 검색</span><input id="music-query" type="search" placeholder="곡명, 앨범명, 아티스트 검색" autocomplete="off" enterkeyhint="search" required maxlength="200"></label>
         <label><span class="sr-only">스토어 카탈로그</span><select id="search-country" aria-describedby="country-help"><option value="DE">독일 DE</option><option value="JP">일본 JP</option><option value="US">미국 US</option></select></label>
         <button type="submit" class="primary" id="search-submit">검색</button>
       </form>
@@ -74,14 +80,17 @@
       <nav id="search-types" class="type-filters search-types" aria-label="검색 결과 종류" hidden>
         <button type="button" class="active" data-entity="all" aria-pressed="true">전체</button>
         <button type="button" data-entity="song" aria-pressed="false">곡</button>
-        <button type="button" data-entity="album" aria-pressed="false">발매작</button>
+        <button type="button" data-entity="album" aria-pressed="false">앨범</button>
         <button type="button" data-entity="musicArtist" aria-pressed="false">아티스트</button>
       </nav>
+      </div>
+      <div id="search-scroll" class="panel-scroll">
       <div class="section-header"><h2>검색 결과</h2><span class="muted hint" id="search-count"></span></div>
       <div id="search-context" hidden></div>
       <div class="search-results" id="results" aria-live="polite"><div class="empty">곡명, 앨범명 또는 아티스트를 검색해 보세요.</div></div>
-    </section>
-  </main>
+      </div>
+    </div>
+  </dialog>
 
   <footer class="container footer">음악 정보와 커버: Apple iTunes Search API · <a href="https://performance-partners.apple.com/search-api" target="_blank" rel="noopener noreferrer">API 안내</a></footer>
 
