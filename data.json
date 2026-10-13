@@ -772,5 +772,23 @@
     "rating": 8,
     "review": "풋풋함 GOAT 지금의 능숙한 히게단도 좋지만 이때의 풋풋함+미숙하게 사랑을 하는 청년 이미지가 너무 좋음.",
     "updatedAt": "2026-10-13T11:25:47.400Z"
+  },
+  {
+    "type": "track",
+    "id": 1211121971,
+    "title": "Hajimari No Asa",
+    "originalTitle": "Hajimari No Asa",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1211121832,
+    "collectionTitle": "Report",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music111/v4/29/40/2b/29402b52-848e-50f1-3464-d28a22797ddc/REPORT_JKT.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/hajimari-no-asa/1211121832?i=1211121971&l=en&uo=4",
+    "country": "DE",
+    "year": "2017",
+    "rating": 8.5,
+    "review": "아침에 학교갈때 들으면 기운이 팍팍 남. 새학기 첫날같은 노래임",
+    "updatedAt": "2026-10-13T11:27:18.404Z"
   }
 ]
