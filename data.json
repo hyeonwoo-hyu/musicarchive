@@ -268,5 +268,23 @@
     "rating": 7,
     "review": "관악기들과의 조화가 좋고 신나는 사랑 노래임",
     "updatedAt": "2026-10-13T05:18:16.505Z"
+  },
+  {
+    "type": "track",
+    "id": 1707023167,
+    "title": "life hack",
+    "originalTitle": "life hack",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707022764,
+    "collectionTitle": "strobo",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7e/04/0e/7e040ed4-e66e-3f00-6678-acea145f5f34/197189864599.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/life-hack/1707022764?i=1707023167&l=en&uo=4",
+    "country": "DE",
+    "year": "2020",
+    "rating": 5,
+    "review": "잰잰배리 그루브 곡",
+    "updatedAt": "2026-10-13T05:19:22.520Z"
   }
 ]
