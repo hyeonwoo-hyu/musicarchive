@@ -52,5 +52,23 @@
     "rating": 7.5,
     "review": "",
     "updatedAt": "2026-10-13T04:23:28.564Z"
+  },
+  {
+    "type": "track",
+    "id": 1600223385,
+    "title": "裸の勇者",
+    "originalTitle": "裸の勇者",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1600223382,
+    "collectionTitle": "裸の勇者 - EP",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/79/8b/c9/798bc942-3a35-7796-b16a-b6bccc85757f/4547366545098.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E8%A3%B8%E3%81%AE%E5%8B%87%E8%80%85/1600223382?i=1600223385&l=en&uo=4",
+    "country": "DE",
+    "year": "2022",
+    "rating": 8.5,
+    "review": "",
+    "updatedAt": "2026-10-13T04:23:39.506Z"
   }
 ]
