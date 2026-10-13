@@ -394,5 +394,23 @@
     "rating": 8.5,
     "review": "발매되고나서 무한 반복재생함. 이데아가 아후렛테 네무레나이~ [이 우연 너머, 필연 너머, 말은 빛마저도 넘어, 천장 너머, 별들 너머, 우주 너머, 은하를 넘어] 라는 가사가 벅차오르고 너무 좋았다.",
     "updatedAt": "2026-10-13T05:27:35.307Z"
+  },
+  {
+    "type": "track",
+    "id": 1707023375,
+    "title": "napori",
+    "originalTitle": "napori",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707022764,
+    "collectionTitle": "strobo",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7e/04/0e/7e040ed4-e66e-3f00-6678-acea145f5f34/197189864599.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/napori/1707022764?i=1707023375&l=en&uo=4",
+    "country": "DE",
+    "year": "2020",
+    "rating": 5.5,
+    "review": "잰잰쓰",
+    "updatedAt": "2026-10-13T05:32:25.903Z"
   }
 ]
