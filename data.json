@@ -412,5 +412,23 @@
     "rating": 5.5,
     "review": "잰잰쓰",
     "updatedAt": "2026-10-13T05:32:25.903Z"
+  },
+  {
+    "type": "track",
+    "id": 1768218701,
+    "title": "Same Blue",
+    "originalTitle": "Same Blue",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1768218700,
+    "collectionTitle": "Same Blue - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8e/2b/64/8e2b64e9-85f2-2486-364d-e4b72c40f4c9/PCSP_06085_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/same-blue/1768218700?i=1768218701&uo=4",
+    "country": "DE",
+    "year": "2024",
+    "rating": 9,
+    "review": "2025년 대구기지의 뜨거운 여름을 책임진 레전드노래",
+    "updatedAt": "2026-10-13T10:34:52.376Z"
   }
 ]
