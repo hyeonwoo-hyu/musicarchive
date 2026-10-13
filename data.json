@@ -124,5 +124,23 @@
     "rating": 7.5,
     "review": "",
     "updatedAt": "2026-10-13T04:24:05.750Z"
+  },
+  {
+    "type": "track",
+    "id": 1725802551,
+    "title": "Kawakiwoameku",
+    "originalTitle": "Kawakiwoameku",
+    "artist": "Minami",
+    "artistId": 1449555775,
+    "collectionId": 1725802547,
+    "collectionTitle": "Kawakiwoameku - EP",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ab/d6/b1/abd6b1ab-8ced-121a-21ea-5399bb37f536/5054197950636.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/kawakiwoameku/1725802547?i=1725802551&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 7.5,
+    "review": "",
+    "updatedAt": "2026-10-13T04:25:38.205Z"
   }
 ]
