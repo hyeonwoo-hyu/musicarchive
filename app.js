@@ -191,7 +191,7 @@ function renderLibrary() {
   else if ($("sort").value === "artist") items.sort((a, b) => a.artist.localeCompare(b.artist, "ko"));
   else items.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   const list = $("library-list"); list.replaceChildren();
-  if (!items.length) list.append(el("div", "empty", all.length ? "검색 조건에 맞는 기록이 없습니다." : "아직 평가한 음악이 없습니다. 음악을 검색해 첫 평가를 남겨 보세요."));
+  if (!items.length) list.append(el("div", "empty", all.length ? "검색 조건에 맞는 기록이 없습니다." : "아직 평가한 음악이 없습니다."));
   else for (const song of items) list.append(songRow(song));
 }
 
@@ -701,14 +701,14 @@ $("search-panel").addEventListener("close", () => {
   window.scrollTo(0, libraryScrollY);
 });
 $("library-search-open").addEventListener("click", () => {
-  $("library-title").hidden = true; $("library-search-open").hidden = true;
+  $("library-title").hidden = true; $("library-actions").hidden = true;
   $("library-search-open").setAttribute("aria-expanded", "true");
   $("library-search").hidden = false; $("library-query").focus({ preventScroll: true });
 });
 $("library-search-close").addEventListener("click", () => {
   $("library-query").value = ""; renderLibrary();
   $("library-search").hidden = true; $("library-title").hidden = false;
-  $("library-search-open").hidden = false; $("library-search-open").setAttribute("aria-expanded", "false");
+  $("library-actions").hidden = false; $("library-search-open").setAttribute("aria-expanded", "false");
   $("library-search-open").focus({ preventScroll: true });
 });
 for (const button of $("library-types").querySelectorAll("button")) {

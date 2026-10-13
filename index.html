@@ -8,14 +8,14 @@
   <title>MUSIC ARCHIVE</title>
   <link rel="preconnect" href="https://itunes.apple.com" crossorigin>
   <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
-  <link rel="stylesheet" href="./style.css?v=20261013-single-1">
-  <script src="./app.js?v=20261013-single-1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261013-catalog-1">
+  <script src="./app.js?v=20261013-catalog-1" defer></script>
 </head>
 <body>
   <header class="topbar">
     <div class="container header">
       <a class="brand" href="./" aria-label="MUSIC ARCHIVE 홈">MUSIC ARCHIVE</a>
-      <button class="secondary small" id="admin-button" type="button">관리자 연결</button>
+      <button class="text-button admin-button" id="admin-button" type="button">관리자 연결</button>
     </div>
   </header>
 
@@ -23,20 +23,31 @@
     <section id="library-panel" aria-labelledby="library-title">
       <div class="library-heading">
         <h1 id="library-title">내 라이브러리</h1>
+        <div id="library-actions" class="library-actions">
+          <button id="stats-open" type="button" class="icon-button" popovertarget="library-stats" aria-label="라이브러리 통계" title="통계">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 18v-5m7 5V6m7 12V9"/></svg>
+          </button>
+          <button id="export" type="button" class="icon-button" aria-label="JSON 백업 다운로드" title="JSON 백업">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg>
+          </button>
         <button id="library-search-open" type="button" class="icon-button" aria-label="내 기록 검색" aria-expanded="false" aria-controls="library-search">
           <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
         </button>
+        </div>
         <div id="library-search" class="library-search" hidden>
           <label class="sr-only" for="library-query">내 기록 검색</label>
           <input id="library-query" type="search" placeholder="내 기록에서 검색…" autocomplete="off">
           <button id="library-search-close" type="button" class="icon-button" aria-label="내 기록 검색 닫기">×</button>
         </div>
       </div>
-      <div class="stats">
-        <div class="stat"><strong id="song-count">0</strong><span>곡</span></div>
-        <div class="stat"><strong id="album-count">0</strong><span>앨범</span></div>
-        <div class="stat"><strong id="average-score">—</strong><span>곡 평균</span></div>
-        <div class="stat"><strong id="album-average">—</strong><span>앨범 평균</span></div>
+      <div id="library-stats" class="stats-popover" popover aria-label="라이브러리 통계">
+        <h2>라이브러리 통계</h2>
+        <dl>
+          <div><dt>평가한 곡</dt><dd id="song-count">0</dd></div>
+          <div><dt>평가한 앨범</dt><dd id="album-count">0</dd></div>
+          <div><dt>곡 평균 평점</dt><dd id="average-score">—</dd></div>
+          <div><dt>앨범 평균 평점</dt><dd id="album-average">—</dd></div>
+        </dl>
       </div>
 
       <div class="library-controls">
@@ -53,7 +64,6 @@
         </select>
       </div>
 
-      <div class="section-header"><h2>음악 목록</h2><button type="button" class="text-button" id="export">JSON 백업</button></div>
       <div id="library-list" class="track-list" aria-live="polite"></div>
     </section>
 
@@ -63,7 +73,7 @@
     <form id="new-music-form" class="container dock-form">
       <label class="sr-only" for="new-music-query">새 음악 검색</label>
       <input id="new-music-query" type="search" placeholder="새 음악 검색…" enterkeyhint="search" autocomplete="off" required maxlength="200">
-      <button class="primary" type="submit" aria-label="새 음악 검색 실행">↑</button>
+      <button class="primary" type="submit" aria-label="새 음악 검색 실행"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button>
     </form>
   </aside>
 
