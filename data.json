@@ -574,5 +574,23 @@
     "rating": 8,
     "review": "히게단 플레이리스트로 활주로에서 불법골전도이어폰과 함께 정말 많이 들었던 곡.",
     "updatedAt": "2026-10-13T11:10:56.432Z"
+  },
+  {
+    "type": "track",
+    "id": 1459216694,
+    "title": "Pretender",
+    "originalTitle": "Pretender",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1459216693,
+    "collectionTitle": "Pretender - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1f/b6/36/1fb6364f-77fc-7653-3750-811631832ee9/PCCA_04785.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/pretender/1459216693?i=1459216694&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 8,
+    "review": "jpop 입문 시절(2021) 부터 플레이리스트에 있었고, 언제든 들어도 좋은 노래였는데 슈타인즈 게이트를 보고 나서 들으니까 더 지리는 노래였음",
+    "updatedAt": "2026-10-13T11:11:35.229Z"
   }
 ]
