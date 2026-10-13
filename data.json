@@ -376,5 +376,23 @@
     "rating": 7.5,
     "review": "기타리프도 신나고 통통 튀는 텐션 업 시켜주는 곡임",
     "updatedAt": "2026-10-13T05:25:12.632Z"
+  },
+  {
+    "type": "track",
+    "id": 1891710449,
+    "title": "イデアが溢れて眠れない",
+    "originalTitle": "イデアが溢れて眠れない",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1891710296,
+    "collectionTitle": "イデアが溢れて眠れない - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/62/72/93/6272936e-5447-11ba-052b-17a539553a72/4547366820225.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E3%82%A4%E3%83%87%E3%82%A2%E3%81%8C%E6%BA%A2%E3%82%8C%E3%81%A6%E7%9C%A0%E3%82%8C%E3%81%AA%E3%81%84/1891710296?i=1891710449&l=en&uo=4",
+    "country": "DE",
+    "year": "2026",
+    "rating": 9,
+    "review": "이것도 발매되고나서 무한 반복재생함. 이데아가 아후렛테 네무레나이~ [이 우연 너머, 필연 너머, 말은 빛마저도 넘어, 천장 너머, 별들 너머, 우주 너머, 은하를 넘어] 라는 가사가 벅차오르고 너무 좋았다.",
+    "updatedAt": "2026-10-13T05:27:07.993Z"
   }
 ]
