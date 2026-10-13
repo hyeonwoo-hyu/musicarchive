@@ -664,5 +664,23 @@
     "rating": 8,
     "review": "그때까지만 해도 히게단 곡들중 대중적으로 엄청 알려진 곡까지는 아니었었는데 군대에서 듣고 꽂힘. 라이브로 떼창까지 하니 지렸음",
     "updatedAt": "2026-10-13T11:17:12.703Z"
+  },
+  {
+    "type": "track",
+    "id": 1860741263,
+    "title": "Make Me Wonder",
+    "originalTitle": "Make Me Wonder",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1860741262,
+    "collectionTitle": "Make Me Wonder - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f6/63/7b/f6637b4a-c127-4c4d-c14c-eb9a1d305d17/PCSP_07023_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/make-me-wonder/1860741262?i=1860741263&l=en&uo=4",
+    "country": "DE",
+    "year": "2025",
+    "rating": 8.5,
+    "review": "1. 사토시는 이걸 어떻게 라이브로 부르는가\n2. 리듬감이 지림. 엄청 빠른 곡이 아닌데도.\n3. 밴드 사운드까지 더해지니 너무 맛있음",
+    "updatedAt": "2026-10-13T11:18:43.751Z"
   }
 ]
