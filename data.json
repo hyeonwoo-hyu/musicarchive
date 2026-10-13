@@ -484,5 +484,23 @@
     "rating": 7,
     "review": "도입부 베이스라인이 좋음. 내한 대비하면서 귀에 많이 익게됨.",
     "updatedAt": "2026-10-13T11:04:40.519Z"
+  },
+  {
+    "type": "track",
+    "id": 1479397583,
+    "title": "イエスタデイ",
+    "originalTitle": "イエスタデイ",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1479397582,
+    "collectionTitle": "Traveler",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/9c/7d/88/9c7d883d-4477-bf68-f56f-a726030a63a2/PCCA_04822.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E3%82%A4%E3%82%A8%E3%82%B9%E3%82%BF%E3%83%87%E3%82%A4/1479397582?i=1479397583&l=en&uo=4",
+    "country": "DE",
+    "year": "2019",
+    "rating": 8,
+    "review": "생각보다 예전부터 이 노래를 들음. 고등학교 2학년 기숙사 살때 첫 jpop 플레이리스트에 있었던 곡..",
+    "updatedAt": "2026-10-13T11:05:53.700Z"
   }
 ]
