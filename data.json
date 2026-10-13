@@ -358,5 +358,23 @@
     "rating": 6,
     "review": "타임패러독스 생각나는 잰잰쓰곡",
     "updatedAt": "2026-10-13T05:24:26.393Z"
+  },
+  {
+    "type": "track",
+    "id": 1707029748,
+    "title": "hitomibore",
+    "originalTitle": "hitomibore",
+    "artist": "Vaundy",
+    "artistId": 1487570516,
+    "collectionId": 1707029555,
+    "collectionTitle": "hitomibore - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/6f/ab/13/6fab137c-a05b-8fbb-2649-bcc15f2ead7f/197189886638.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/hitomibore/1707029555?i=1707029748&l=en&uo=4",
+    "country": "DE",
+    "year": "2022",
+    "rating": 7.5,
+    "review": "기타리프도 신나고 통통 튀는 텐션 업 시켜주는 곡임",
+    "updatedAt": "2026-10-13T05:25:12.632Z"
   }
 ]
