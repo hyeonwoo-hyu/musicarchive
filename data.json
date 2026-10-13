@@ -502,5 +502,23 @@
     "rating": 8,
     "review": "생각보다 예전부터 이 노래를 들음. 고등학교 2학년 기숙사 살때 첫 jpop 플레이리스트에 있었던 곡..",
     "updatedAt": "2026-10-13T11:05:53.700Z"
+  },
+  {
+    "type": "track",
+    "id": 1660219924,
+    "title": "ホワイトノイズ",
+    "originalTitle": "ホワイトノイズ",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1660219923,
+    "collectionTitle": "ホワイトノイズ - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/98/13/b0/9813b0bc-06e6-60e9-6cdb-74cc6888af7a/PCSP_04797_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%8E%E3%82%A4%E3%82%BA/1660219923?i=1660219924&l=en&uo=4",
+    "country": "DE",
+    "year": "2023",
+    "rating": 7,
+    "review": "말그대로 화이트 노이즈스러운 사운드. 같은 도리벤 주제가여서 그런지 cry baby와 비슷한 느낌.",
+    "updatedAt": "2026-10-13T11:06:47.379Z"
   }
 ]
