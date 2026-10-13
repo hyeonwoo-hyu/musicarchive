@@ -430,5 +430,23 @@
     "rating": 9,
     "review": "2025년 대구기지의 뜨거운 여름을 책임진 레전드노래",
     "updatedAt": "2026-10-13T10:34:52.376Z"
+  },
+  {
+    "type": "track",
+    "id": 1826940240,
+    "title": "Rashisa",
+    "originalTitle": "Rashisa",
+    "artist": "OFFICIAL HIGE DANDISM",
+    "artistId": 960568308,
+    "collectionId": 1826940239,
+    "collectionTitle": "Rashisa - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b4/6f/6a/b46f6ad1-b73c-4563-b05b-5edd2c9fbd08/PCSP_06691_A.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/rashisa/1826940239?i=1826940240&uo=4",
+    "country": "DE",
+    "year": "2025",
+    "rating": 9,
+    "review": "2025년 겨울 달리기에는 추운 날씨였지만 이 노래를 듣고 밖에 나가서 숨이 안 쉬어질때까지 달렸다",
+    "updatedAt": "2026-10-13T10:36:41.135Z"
   }
 ]
