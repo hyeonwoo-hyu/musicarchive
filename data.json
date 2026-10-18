@@ -880,5 +880,23 @@
     "rating": 6.5,
     "review": "gpt 추천으로 들었는데 가사는 좋은 편이지만 멜로디가 약간 평이했다",
     "updatedAt": "2026-10-18T06:20:00.350Z"
+  },
+  {
+    "type": "track",
+    "id": 1533230824,
+    "title": "Parting",
+    "originalTitle": "Parting",
+    "artist": "ONEWE",
+    "artistId": 1437510372,
+    "collectionId": 1533230823,
+    "collectionTitle": "Parting - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ff/4d/45/ff4d4516-86eb-a0b0-14ad-a9dbfbe9a026/cover_-_DS.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/parting/1533230823?i=1533230824&uo=4",
+    "country": "DE",
+    "year": "2020",
+    "rating": 5,
+    "review": "음 도입부까지는 괜찮았는데 다 듣고보니 아이돌같은 느낌임 보컬도 멤버별로 다 부르고 (듀엣이 싫다는게 아니라) 중간에 좀 아쉬운 랩파트도 나오고 음.... 음...",
+    "updatedAt": "2026-10-18T06:23:51.528Z"
   }
 ]
