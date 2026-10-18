@@ -1096,5 +1096,23 @@
     "rating": 8,
     "review": "룩삼 보컬로이드 월드컵 영상에서 접했는데 미쿠 목소리랑 너무 잘 어울리고 백룸을 주제로 한 노래인데 그 분위기를 너무 잘 연상시키고 좋았음",
     "updatedAt": "2026-10-18T15:00:17.257Z"
+  },
+  {
+    "type": "track",
+    "id": 1829613591,
+    "title": "Retry Now",
+    "originalTitle": "Retry Now",
+    "artist": "NAKISO",
+    "artistId": 1577590154,
+    "collectionId": 1829613587,
+    "collectionTitle": "Retry Now - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1d/45/8e/1d458eb7-4ae7-9f67-4fb0-d42ed4633e6b/4550711192793_cover.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/retry-now/1829613587?i=1829613591&uo=4",
+    "country": "DE",
+    "year": "2025",
+    "rating": 8,
+    "review": "초장부터 지금바로윤회!!!! 박아버리는게 충격적이었고 뮤비도 좋고, looping in tne rooms랑 같이 보컬로이드에 대한 비선호를 없애준 곡임",
+    "updatedAt": "2026-10-18T15:02:09.580Z"
   }
 ]
