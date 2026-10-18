@@ -844,5 +844,23 @@
     "rating": 7.5,
     "review": "처음 들었을때는 이게뭐노? 했는데 듣다보니까 왤케 좋지? 머릿속에 계속 맴돈다. 가사까지 찾아보니까 바운디 특유의 현대인 철학이 담겨있어 더 좋네.",
     "updatedAt": "2026-10-13T17:11:13.143Z"
+  },
+  {
+    "type": "track",
+    "id": 1445016168,
+    "title": "Sakura Nagashi",
+    "originalTitle": "Sakura Nagashi",
+    "artist": "Hikaru Utada",
+    "artistId": 18756224,
+    "collectionId": 1445016161,
+    "collectionTitle": "Sakura Nagashi - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/cc/1e/aa/cc1eaa5f-0daa-73ba-e15d-13b31fc5a19a/00600406809049.rgb.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/sakura-nagashi/1445016161?i=1445016168&uo=4",
+    "country": "DE",
+    "year": "2012",
+    "rating": 5.5,
+    "review": "gpt 추천으로 들어봤는데 음..음..",
+    "updatedAt": "2026-10-18T06:13:48.622Z"
   }
 ]
