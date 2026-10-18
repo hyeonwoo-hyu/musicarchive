@@ -1060,5 +1060,23 @@
     "rating": 8.5,
     "review": "너무 좋은데 우리나라에선 그렇게 안 유명한 바운디 숨겨진 명곡. 바운디가 가진 파워풀한 목소리랑 밴드사운드가 너무 잘 어울린다. 드럼의 박자감이랑 멜로디가 지린다",
     "updatedAt": "2026-10-18T13:31:30.496Z"
+  },
+  {
+    "type": "track",
+    "id": 1410619814,
+    "title": "Antarctica",
+    "originalTitle": "Antarctica",
+    "artist": "THORNAPPLE",
+    "artistId": 963680681,
+    "collectionId": 1410619812,
+    "collectionTitle": "Strange Weather",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/51/0a/5b/510a5b3c-405a-630d-d3ea-ea520bc86fb8/Strange_Weather.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/antarctica/1410619812?i=1410619814&uo=4",
+    "country": "DE",
+    "year": "2014",
+    "rating": 8.5,
+    "review": "남극이라는 제목과 달리 오히려 윤성현의 목소리가 따뜻하게 감싸주는 느낌, 침전하는 느낌이 너무 좋다. <아가미>와 다른 느낌의 곡이지만 같은 세계관을 공유하는 느낌이다. 동시에 가사를 보면 ”펭귄“ 이라는 주제이고 남극의 펭귄 이야기이지만 사람의 이야기라고 생각하게 되면 또 생각할거리가 많아진다.",
+    "updatedAt": "2026-10-18T13:35:27.446Z"
   }
 ]
