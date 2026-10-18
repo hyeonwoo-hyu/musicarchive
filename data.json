@@ -898,5 +898,23 @@
     "rating": 4.5,
     "review": "음 도입부까지는 괜찮았는데 다 듣고보니 아이돌같은 느낌임 보컬도 멤버별로 다 부르고 (듀엣이 싫다는게 아니라) 중간에 좀 아쉬운 랩파트도 나오고 음.... 음... 주제가 소행성이라서 추천해준 것 같은데 사실 가사도 소행성이 떨어지기 전에 말을 전하고 싶다는 단순한 내용이었음..",
     "updatedAt": "2026-10-18T06:25:14.782Z"
+  },
+  {
+    "type": "album",
+    "id": 197208576,
+    "title": "Welcome to the Black Parade - Single",
+    "originalTitle": "Welcome to the Black Parade - Single",
+    "artist": "My Chemical Romance",
+    "artistId": 14748659,
+    "collectionId": 197208576,
+    "collectionTitle": "Welcome to the Black Parade - Single",
+    "collectionType": "Album",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c0/7d/c7/c07dc74f-6903-456f-ae9b-856f0de82cbb/mzi.vikzwuxo.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/welcome-to-the-black-parade-single/197208576?l=en&uo=4",
+    "country": "DE",
+    "year": "2006",
+    "rating": 8,
+    "review": "어디서 들어봤지 했는데 히게단 공연 전에 틀어준 음악이었음 가사도 좋고 2006년 노래인줄 전혀 몰랐음 좋다.",
+    "updatedAt": "2026-10-18T06:39:02.192Z"
   }
 ]
