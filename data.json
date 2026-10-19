@@ -1168,5 +1168,23 @@
     "rating": 6.5,
     "review": "도입부 스트링은 확실히 좋다 그러나 멜로디나 전개가 약간 너무 예상되는 느낌이고 모토키가 노래를 너무 잘하긴 하지만 곡들 자체가 높다보니까 고음 부분에서 찌르는 부분이 (곡이 워낙 높다보니까) 애매하다",
     "updatedAt": "2026-10-19T08:30:31.318Z"
+  },
+  {
+    "type": "track",
+    "id": 1440862797,
+    "title": "Shake It Out",
+    "originalTitle": "Shake It Out",
+    "artist": "Florence + the Machine",
+    "artistId": 281070699,
+    "collectionId": 1440862789,
+    "collectionTitle": "Ceremonials (Deluxe)",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/3d/b7/62/3db762e7-36f5-d3fe-5bd2-553bc5f9c61b/11UMGIM28251.rgb.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/shake-it-out/1440862789?i=1440862797&l=en&uo=4",
+    "country": "DE",
+    "year": "2011",
+    "rating": 5,
+    "review": "음 웅장하긴 한데 쎼끼랏 쎼끼랏!! 하는 부분이 약간 나랑 잘 안 맞는 느낌이었음.. 그리고 결국 웅장함속에서 목소리가 두드러지는 느낌이고.. 가사도 너무 딱 쎄끼랏 해버리라는 내용이니까",
+    "updatedAt": "2026-10-19T08:34:18.282Z"
   }
 ]
