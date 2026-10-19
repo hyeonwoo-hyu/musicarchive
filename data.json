@@ -1150,5 +1150,23 @@
     "rating": 7,
     "review": "가사도 좋고 비트감도 좋고 하지만 감동 까지는 아니고 기타니의 보컬파워를 즐기면서 그루브 타기 좋은 노래 같움",
     "updatedAt": "2026-10-19T08:25:44.360Z"
+  },
+  {
+    "type": "track",
+    "id": 1440883428,
+    "title": "Kujiranouta",
+    "originalTitle": "Kujiranouta",
+    "artist": "Mrs. GREEN APPLE",
+    "artistId": 962221033,
+    "collectionId": 1440883158,
+    "collectionTitle": "Mrs. Green Apple",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e2/02/6d/e2026db1-a828-6437-2db1-536e454fe044/00602557312133.rgb.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/kujiranouta/1440883158?i=1440883428&l=en&uo=4",
+    "country": "DE",
+    "year": "2017",
+    "rating": 6.5,
+    "review": "도입부 스트링은 확실히 좋다 그러나 멜로디나 전개가 약간 너무 예상되는 느낌이고 모토키가 노래를 너무 잘하긴 하지만 곡들 자체가 높다보니까 고음 부분에서 찌르는 부분이 (곡이 워낙 높다보니까) 애매하다",
+    "updatedAt": "2026-10-19T08:30:31.318Z"
   }
 ]
