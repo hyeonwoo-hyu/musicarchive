@@ -1132,5 +1132,23 @@
     "rating": 7.5,
     "review": "노래랑 사운드는 좋다. 기타와 좌우음향이 너무 잘 쓰인것같다. 그러나 가사가 오히려 너무 직설적이라(인간 세정기, 인간불신자, 인간신자, 자살지원자 등)  약간 아쉬웠다",
     "updatedAt": "2026-10-19T08:20:35.265Z"
+  },
+  {
+    "type": "track",
+    "id": 1625860053,
+    "title": "月光 (feat. はるまきごはん)",
+    "originalTitle": "月光 (feat. はるまきごはん)",
+    "artist": "Tatsuya Kitani",
+    "artistId": 1289607378,
+    "collectionId": 1625860052,
+    "collectionTitle": "月光 (feat. はるまきごはん) - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/7d/b5/3f/7db53f96-0c4f-83b4-e9a0-7fefa2440e8f/4547366567076.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E6%9C%88%E5%85%89-feat-%E3%81%AF%E3%82%8B%E3%81%BE%E3%81%8D%E3%81%94%E3%81%AF%E3%82%93/1625860052?i=1625860053&uo=4",
+    "country": "DE",
+    "year": "2022",
+    "rating": 7,
+    "review": "가사도 좋고 비트감도 좋고 하지만 감동 까지는 아니고 기타니의 보컬파워를 즐기면서 그루브 타기 좋은 노래 같움",
+    "updatedAt": "2026-10-19T08:25:44.360Z"
   }
 ]
