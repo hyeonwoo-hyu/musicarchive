@@ -1240,5 +1240,23 @@
     "rating": 4,
     "review": "라틴풍은 아직은 잘 안 맞는걸로.. 장르 문법 자체가 잘 안 맞는것같음 물론 익숙하지 않아서 그런걸수도 있겠지만 익숙해지게 하기 위해서 억지로 퍼먹어야할 필요가 있을까",
     "updatedAt": "2026-10-19T08:56:08.005Z"
+  },
+  {
+    "type": "track",
+    "id": 1535635048,
+    "title": "Sanmon Shosetsu",
+    "originalTitle": "Sanmon Shosetsu",
+    "artist": "King Gnu",
+    "artistId": 1258439196,
+    "collectionId": 1535635046,
+    "collectionTitle": "Sanmon Shosetsu - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f0/52/0e/f0520ec1-755a-2bea-c478-2b2d24a5f445/4547366480252.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/sanmon-shosetsu/1535635046?i=1535635048&uo=4",
+    "country": "DE",
+    "year": "2020",
+    "rating": 4.5,
+    "review": "약간 막이낀 느낌이고 킹누의 문법을 나는 아직 이해를\n잘 못하는것 같다 빌드업을 하는것 같았는데 중간에 그냥 끝난 느낌.. 보컬도 아직 문법을 이해 못 하겠다.. 그냥 중간에 찜찜하게 끝난것같다",
+    "updatedAt": "2026-10-19T09:01:18.692Z"
   }
 ]
