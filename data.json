@@ -1114,5 +1114,23 @@
     "rating": 8,
     "review": "초장부터 지금바로윤회!!!! 박아버리는게 충격적이었고 뮤비도 좋고, looping in tne rooms랑 같이 보컬로이드에 대한 비선호를 없애준 곡임",
     "updatedAt": "2026-10-18T15:02:09.580Z"
+  },
+  {
+    "type": "track",
+    "id": 720506831,
+    "title": "有心論",
+    "originalTitle": "有心論",
+    "artist": "RADWIMPS",
+    "artistId": 91160335,
+    "collectionId": 720506749,
+    "collectionTitle": "有心論 - Single",
+    "collectionType": "",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/68/f5/45/68f545ec-a386-2248-54a9-37b0a80e93c1/00094636895956.jpg/100x100bb.jpg",
+    "storeUrl": "https://music.apple.com/de/album/%E6%9C%89%E5%BF%83%E8%AB%96/720506749?i=720506831&uo=4",
+    "country": "DE",
+    "year": "2006",
+    "rating": 7,
+    "review": "노래랑 사운드는 좋은데 가사가 오히려 너무 직설적이라 약간 아쉬웠다",
+    "updatedAt": "2026-10-19T08:18:16.155Z"
   }
 ]
