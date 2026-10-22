@@ -11,7 +11,7 @@
 
 평가 모달에서 0.5~10점(0.5점 단위), 선택적 감상평과 표시 제목을 입력합니다. 처음 저장할 때 관리자 연결창에 이 저장소의 **Contents: Read and write** 권한이 있는 GitHub Fine-grained PAT를 입력하면 작성한 평가를 이어서 저장합니다.
 
-PAT는 브라우저 런타임 메모리에만 유지하고 새로고침·연결 해제로 지워집니다. Safari 암호 앱에 hyeonwoo-hyu.github.io의 사용자명과 PAT를 등록해 자동완성을 선택하거나 직접 붙여넣을 수 있습니다. 공개 저장소이므로 평가와 감상평은 공개됩니다.
+PAT는 브라우저 런타임 메모리에만 유지하고 새로고침·연결 해제로 지워집니다. Safari 암호 앱에 unpairedspin.github.io의 사용자명과 PAT를 등록해 자동완성을 선택하거나 직접 붙여넣을 수 있습니다. 공개 저장소이므로 평가와 감상평은 공개됩니다.
 
 GitHub Contents API에서 최신 data.json과 SHA를 조회하고 같은 평가의 변경 여부를 확인합니다. 저장 실패와 SHA 충돌 시 작성 내용을 유지합니다. 라이브러리 검색·정렬과 JSON 백업을 지원합니다.
 
@@ -23,4 +23,4 @@ API는 일반 fetch를 먼저 사용합니다. CORS/네트워크 실패 시 테�
 
 Apple 공식 문서: https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/Searching.html
 
-배포는 GitHub Pages → main / (root)입니다. 사이트: https://hyeonwoo-hyu.github.io/musicarchive/
+배포는 GitHub Pages → main / (root)입니다. 사이트: https://unpairedspin.github.io/musicarchive/

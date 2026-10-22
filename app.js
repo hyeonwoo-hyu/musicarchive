@@ -1,6 +1,6 @@
 "use strict";
 
-const OWNER = "hyeonwoo-hyu";
+const OWNER = "unpairedspin";
 const REPO = "musicarchive";
 const FILE_API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/data.json`;
 const $ = id => document.getElementById(id);
